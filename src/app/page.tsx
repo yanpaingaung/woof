@@ -310,8 +310,7 @@ function CommunityContent() {
           <p className="text-[#000080] mb-2" style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "9px" }}>📢 WELCOME TO THE WOOF COMMUNITY</p>
           <p>Join thousands of WOOFs and start WOOFFing with us every day.</p>
           <br />
-          <p>🦴 BARK together.</p>
-          <p>🐾 WOOF together.</p>
+          <p>🐾 WOOFFing together.</p>
           <p>🌐 BUILD together.</p>
         </div>
         <div className="w98-raised p-3 flex gap-2 justify-center">
