@@ -11,11 +11,14 @@ function mapRow(a: Record<string, unknown>) {
   };
 }
 
-export async function GET() {
-  const { data, error } = await supabaseAdmin
+export async function GET(req: NextRequest) {
+  const x_handle = new URL(req.url).searchParams.get("x_handle")?.toLowerCase();
+  let query = supabaseAdmin
     .from("adjustments")
     .select("*")
     .order("submitted_at", { ascending: false });
+  if (x_handle) query = query.eq("x_handle", x_handle);
+  const { data, error } = await query;
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json({ data: (data ?? []).map(mapRow) });
 }

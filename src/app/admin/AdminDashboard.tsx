@@ -238,6 +238,23 @@ export default function AdminPage() {
           );
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "adjustments" },
+        (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const r = payload.new as any;
+          const incoming: Adjustment = {
+            user:        r.x_handle,
+            pts:         String(r.pts),
+            reason:      r.reason ?? "",
+            submittedAt: r.submitted_at,
+          };
+          setAdjustments(prev =>
+            prev.some(a => a.submittedAt === incoming.submittedAt && a.user === incoming.user) ? prev : [incoming, ...prev]
+          );
+        },
+      )
       .subscribe();
 
     realtimeRef.current = { unsubscribe: () => supabase.removeChannel(channel) };

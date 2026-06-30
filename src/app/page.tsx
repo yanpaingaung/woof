@@ -995,7 +995,19 @@ function FarmPointsContent() {
         }
       } catch {}
 
-      setApprovedPoints(replyPts + contentPts);
+      // Adjustments for this user (may be negative, e.g. admin reset)
+      let adjustPts = 0;
+      try {
+        const adjRes = await fetch(`/api/adjustments?x_handle=${encodeURIComponent(handle.toLowerCase())}`);
+        if (adjRes.ok) {
+          const { data: adjData } = await adjRes.json();
+          if (Array.isArray(adjData)) {
+            adjustPts = adjData.reduce((sum: number, a: { pts: string }) => sum + (parseInt(a.pts, 10) || 0), 0);
+          }
+        }
+      } catch {}
+
+      setApprovedPoints(Math.max(0, replyPts + contentPts + adjustPts));
       setPendingCount(replyPend + contentPend);
 
       // Streak: count approved per calendar day (reply submissions + content submissions)
