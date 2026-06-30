@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Press_Start_2P, VT323 } from "next/font/google";
+import { headers } from "next/headers";
+import { cookieToInitialState } from "wagmi";
 import "./globals.css";
+import { getConfig } from "@/lib/wagmi-config";
 import { WalletProvider } from "@/components/wallet-provider";
 
 const pixelHeading = Press_Start_2P({
@@ -25,15 +28,18 @@ export const metadata: Metadata = {
   description: "Translate English to Woof and back. Est. 1998.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookie = (await headers()).get("cookie") ?? "";
+  const initialState = cookieToInitialState(getConfig(), cookie);
+
   return (
     <html lang="en" className={`${pixelHeading.variable} ${pixelBody.variable} h-full`}>
       <body className="min-h-full flex flex-col">
-        <WalletProvider>{children}</WalletProvider>
+        <WalletProvider initialState={initialState}>{children}</WalletProvider>
       </body>
     </html>
   );

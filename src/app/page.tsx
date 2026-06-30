@@ -1247,7 +1247,7 @@ const INITIAL_WINS: WinState[] = [
   { id: "woofing",      x: 340, y: 80,  z: 9,  open: false, minimized: false },
   { id: "community",    x: 80,  y: 200, z: 8,  open: false, minimized: false },
   { id: "about",        x: 500, y: 120, z: 7,  open: false, minimized: false },
-  { id: "farm-points",  x: 60,  y: 50,  z: 6,  open: false, minimized: false, maximized: false },
+  { id: "farm-points",  x: 60,  y: 50,  z: 11, open: true,  minimized: false, maximized: false },
 ];
 
 let zCounter = 20;
