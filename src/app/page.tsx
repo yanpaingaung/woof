@@ -422,10 +422,13 @@ function WalletConnectButton() {
     if (comm?.waitForPopupLoaded && (!comm.popup || comm.popup.closed)) {
       try {
         await comm.waitForPopupLoaded();
-      } catch {
-        // If pre-opening fails (e.g. popup blocked and user cancelled the SDK
-        // dialog), abort — connect() would fail the same way.
-        return;
+      } catch (err) {
+        // Only abort if the user explicitly dismissed the "popup blocked"
+        // dialog.  Other errors (e.g. "Analytics SDK: SDK platform not
+        // initialized" on first click before the telemetry script loads) are
+        // transient — fall through so connect() handles the flow itself.
+        const msg = String((err as { message?: string })?.message ?? "").toLowerCase();
+        if (msg.includes("popup") || msg.includes("blocked")) return;
       }
     }
     connect({ connector });
