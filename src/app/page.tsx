@@ -716,8 +716,8 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
         position: "fixed", inset: 0, zIndex: 9999,
         background: "rgba(0,0,0,0.55)",
         display: "flex", alignItems: "flex-start", justifyContent: "center",
-        paddingTop: 64,
-        paddingLeft: 16, paddingRight: 16, paddingBottom: 16,
+        paddingTop: 60,
+        paddingLeft: 8, paddingRight: 8, paddingBottom: 16,
         overflowY: "auto",
         animation: "fadeIn 0.18s ease",
       }}
@@ -731,9 +731,9 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
           borderRadius: 24,
           border: "1px solid rgba(0,82,255,0.18)",
           boxShadow: "0 8px 48px rgba(0,40,160,0.22), 0 2px 12px rgba(0,0,0,0.10)",
-          width: "90%",
+          width: "95%",
           maxWidth: 650,
-          maxHeight: "80vh",
+          maxHeight: "85vh",
           display: "flex",
           flexDirection: "column",
           animation: "modalIn 0.22s ease",
@@ -779,7 +779,7 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
             </div>
             <ol className="hte-list" style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
               <li>Use the WOOF Translator to generate a WOOF-style reply.</li>
-              <li>Post that WOOF reply under a Base ecosystem post on X.</li>
+              <li>Post that WOOF reply under any post on X.</li>
               <li>Copy your reply URL.</li>
               <li>Paste the link into Submit Reply and submit it for review.</li>
             </ol>
