@@ -754,7 +754,7 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
             💬 Submit Reply (+17 Points)
           </div>
-          <ol style={{ margin: "0 0 12px", paddingLeft: 20, fontSize: 13, color: "#334155", lineHeight: 1.75 }}>
+          <ol style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
             <li>Use the WOOF Translator to generate a WOOF-style reply.</li>
             <li>Post that WOOF reply under a Base ecosystem post on X.</li>
             <li>Copy your reply URL.</li>
@@ -775,7 +775,7 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
             📝 Submit Content (+1006 Points)
           </div>
-          <ol style={{ margin: "0 0 12px", paddingLeft: 20, fontSize: 13, color: "#334155", lineHeight: 1.75 }}>
+          <ol style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
             <li>Submit original, high-quality content related to the Base ecosystem.</li>
             <li>WOOF-related content is also accepted.</li>
             <li>Points are awarded based on the overall quality of the content.</li>
