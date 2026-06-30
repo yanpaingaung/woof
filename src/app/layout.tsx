@@ -26,6 +26,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "WOOFonBASE",
   description: "Translate English to Woof and back. Est. 1998.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default async function RootLayout({

@@ -331,10 +331,10 @@ function AboutContent() {
       <div className="flex gap-4 p-4 bg-[#c0c0c0]">
         <img src="/woofhead.png" alt="" className="select-none flex-shrink-0" style={{ height: "56px", width: "auto" }} />
         <div className="text-black leading-relaxed" style={{ fontFamily: "var(--font-pixel-body)", fontSize: "1.05rem" }}>
-          <p style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "9px", color: "#000080" }}>WOOF TRANSLATOR</p>
+          <p style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "9px", color: "#000080" }}>WOOF PROTOCOL</p>
           <p>Version 1.0.0 (Build 1998)</p>
           <br />
-          <p>The world's premier English↔Woof engine.</p>
+          <p>Communication layer for the WOOF economy.</p>
           <br />
           <p>🪙 Token: $WOOF</p>
           <p>🌐 Chain: BASE</p>
@@ -356,9 +356,9 @@ function WelcomeContent({ onOpen }: { onOpen: (id: WinId) => void }) {
     <>
       <div className="p-5 bg-[#c0c0c0] flex flex-col gap-3 items-center text-center">
         <img src="/mainwoof.png" alt="" style={{ height: "72px", width: "auto" }} />
-        <p style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "10px", color: "#000080" }}>WOOF TRANSLATOR v1.0</p>
+        <p style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "10px", color: "#000080" }}>WOOF PROTOCOL v1.0</p>
         <div className="w98-sunken p-3 w-full bg-white text-black leading-relaxed" style={{ fontFamily: "var(--font-pixel-body)", fontSize: "1.05rem" }}>
-          The world's first English ↔ Woof translation engine.<br /><br />
+          Welcome to the WOOF Community. Your WOOFFing journey starts here.<br /><br />
           Double-click any icon — or use the menu bar — to get started.
         </div>
         <div className="flex gap-3 mt-1">
@@ -1318,7 +1318,7 @@ function FarmPointsContent() {
           <br /><br />
           We're building for Base creators, Base builders, reply guys, and everyone who helps keep the ecosystem alive. With the WOOF Translator and a community points system, we're making it fun to engage with the Base ecosystem while bringing the Base meme culture back.
           <br /><br />
-          The more you contribute to Base, the more WOOF Points you earn.
+          The more you contribute to Base, the more WOOF you earn.
         </p>
       </div>
 
@@ -1619,9 +1619,7 @@ export default function Home() {
       {/* ── Marquee ── */}
       <div className="bg-[#000080] text-[#ffff00] py-0.5 flex-shrink-0 overflow-hidden">
         <marquee scrollamount={4} style={{ fontFamily: "var(--font-pixel-body)", fontSize: "0.9rem" }}>
-          🐾 WOOF WOOF WOOF &nbsp;|&nbsp; 🪙 $WOOF TO THE MOON &nbsp;|&nbsp; 🦴 1,000,000,000 SUPPLY &nbsp;|&nbsp;
-          🌐 JOIN THE WOOF PACK &nbsp;|&nbsp; 📈 WOOF IS PUMPING &nbsp;|&nbsp; 🐕 NO RUG, ONLY WOOF &nbsp;|&nbsp;
-          🎉 DRAG THE WINDOWS AROUND! &nbsp;|&nbsp; 🌾 FARM POINTS NOW! &nbsp;|&nbsp; 🐾 WOOF WOOF WOOF
+          WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing &nbsp;|&nbsp; WOOFFing
         </marquee>
       </div>
 
@@ -1634,7 +1632,7 @@ export default function Home() {
           <DesktopIcon icon="🌐" label="Community"       onDoubleClick={() => open("community")} />
           <DesktopIcon icon="ℹ️" label="About.txt"       onDoubleClick={() => open("about")} />
           <DesktopIcon icon={<img src="/pointbone.png" alt="" style={{ width: 48, height: 48, objectFit: "contain" }} />} label="Farm Points" onDoubleClick={() => open("farm-points")} />
-          <DesktopIcon icon="🪙" label="$WOOF Token"    onDoubleClick={() => {}} />
+          <DesktopIcon icon={<img src="/tokenicon.png" alt="" style={{ width: 48, height: 48, objectFit: "contain" }} />} label="$WOOF Token" onDoubleClick={() => {}} />
           <DesktopIcon icon="🗑️" label="Recycle Bin"    onDoubleClick={() => {}} />
         </div>
 
