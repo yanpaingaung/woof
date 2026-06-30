@@ -987,7 +987,7 @@ function FarmPointsContent() {
             WebkitTextFillColor: "transparent",
             letterSpacing: "-1px",
           }}>
-            return<br />to memes
+            The WOOF Era<br />Has Begun
           </h1>
           <p style={{ color: "#ffffff", fontSize: 14, margin: "0 0 20px", lineHeight: 1.55 }}>
             WOOF is here to bring meme meta back to Base.
