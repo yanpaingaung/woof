@@ -1111,9 +1111,6 @@ function FarmPointsContent() {
           <p style={{ color: "#ffffff", fontSize: 14, margin: "0 0 20px", lineHeight: 1.55 }}>
             It's time to bring the meme meta back to Base.
           </p>
-          <div style={{ display: "flex", gap: 12 }}>
-            <button className="farm-btn-secondary" onClick={() => setShowHowToEarn(true)}>How to Earn WOOF Points</button>
-          </div>
         </div>
         {/* Mascot group */}
         <div className="farm-hero-mascot">
