@@ -697,11 +697,16 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
     if (e.target === e.currentTarget) onClose();
   };
 
-  // Close on Escape key
+  // Close on Escape key + lock body scroll
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = prev;
+    };
   }, [onClose]);
 
   return (
@@ -710,8 +715,10 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
         background: "rgba(0,0,0,0.55)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "16px",
+        display: "flex", alignItems: "flex-start", justifyContent: "center",
+        paddingTop: 64,
+        paddingLeft: 16, paddingRight: 16, paddingBottom: 16,
+        overflowY: "auto",
         animation: "fadeIn 0.18s ease",
       }}
     >
@@ -724,12 +731,12 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
           borderRadius: 24,
           border: "1px solid rgba(0,82,255,0.18)",
           boxShadow: "0 8px 48px rgba(0,40,160,0.22), 0 2px 12px rgba(0,0,0,0.10)",
-          width: "100%",
-          maxWidth: 480,
-          maxHeight: "85vh",
+          width: "90%",
+          maxWidth: 650,
+          maxHeight: "80vh",
           display: "flex",
           flexDirection: "column",
-          animation: "modalIn 0.2s ease",
+          animation: "modalIn 0.22s ease",
           fontFamily: "system-ui,sans-serif",
           overflow: "hidden",
         }}

@@ -478,8 +478,9 @@ textarea {
 
 @media (max-width: 767px) {
   .hte-card {
+    width: 90% !important;
     max-width: 92vw !important;
-    max-height: 85vh !important;
+    max-height: 80vh !important;
     border-radius: 20px !important;
   }
   .hte-header {
@@ -514,8 +515,8 @@ textarea {
   to   { opacity: 1; }
 }
 @keyframes modalIn {
-  from { opacity: 0; transform: scale(0.94) translateY(8px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0);     }
 }
 
 @keyframes farmTabFade {
