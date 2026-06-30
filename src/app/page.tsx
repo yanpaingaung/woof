@@ -308,7 +308,7 @@ function CommunityContent() {
       <div className="p-4 bg-[#c0c0c0] flex flex-col gap-3">
         <div className="w98-sunken p-3 bg-white text-black leading-relaxed" style={{ fontFamily: "var(--font-pixel-body)", fontSize: "1.05rem" }}>
           <p className="text-[#000080] mb-2" style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "9px" }}>📢 WELCOME TO THE WOOF PACK</p>
-          <p>Join thousands of dogs and dog-adjacent beings speaking WOOF daily.</p>
+          <p>Join thousands of WOOFs and start WOOFFing with us every day.</p>
           <br />
           <p>🦴 BARK together.</p>
           <p>🐾 WOOF together.</p>
