@@ -457,6 +457,13 @@ textarea {
   object-fit: contain;
 }
 
+@media (max-width: 767px) {
+  .farm-hero-mascot-img {
+    height: clamp(125px, 35vw, 240px) !important;
+    max-width: 48vw !important;
+  }
+}
+
 /* Fade-in when Farm Points tab opens */
 /* Connected accounts bar — stacks on mobile, row on desktop */
 .ca-bar {
