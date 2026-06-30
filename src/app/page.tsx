@@ -1036,7 +1036,7 @@ function FarmPointsContent() {
               src="/pointbone.png"
               alt=""
               className="farm-pts-emoji"
-              style={{ fontSize: 48, width: "1em", height: "1em", flexShrink: 0, objectFit: "contain" }}
+              style={{ fontSize: 72, width: "1em", height: "1em", flexShrink: 0, objectFit: "contain" }}
             />
           </div>
         </div>
