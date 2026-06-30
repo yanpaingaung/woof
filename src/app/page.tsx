@@ -1112,9 +1112,11 @@ function FarmPointsContent() {
           What is WOOF?
         </div>
         <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
-          WOOF is a meme-native token built on Base, designed to unite the degen and dog-loving
-          communities. Earn points by translating content into WOOF, engaging on social, and spreading
-          the meme meta.
+          WOOF is a B20 token built for the Base community.
+          <br /><br />
+          We're building for Base creators, Base builders, reply guys, and everyone who helps keep the ecosystem alive. With the WOOF Translator and a community points system, we're making it fun to engage with the Base ecosystem while bringing the Base meme culture back.
+          <br /><br />
+          The more you contribute to Base, the more WOOF Points you earn.
         </p>
       </div>
 
