@@ -1482,7 +1482,7 @@ const WIN_META: Record<WinId, { icon: string; title: string; label: React.ReactN
   woofing:      { icon: "🐾", title: "WOOFing",                             label: "🐾 WOOFing"      },
   community:    { icon: "🌐", title: "Community.exe — WOOF Social Hub",    label: "🌐 Community"    },
   about:        { icon: "ℹ️",  title: "About WOOF.EXE",                     label: "ℹ️ About"        },
-  "farm-points":{ icon: "🦴", title: "Farm Points.exe",                    label: <><img src="/pointbone.png" alt="" style={{ width: 18, height: 18, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 4 }} />Farm Points</> },
+  "farm-points":{ icon: "🦴", title: "Farm Points.exe",                    label: <><img src="/pointbone.png" alt="" style={{ width: 28, height: 28, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 5 }} />Farm Points</> },
 };
 
 const INITIAL_WINS: WinState[] = [
