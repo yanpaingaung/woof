@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 /* ─── Types ─── */
 type SubStatus = "pending" | "approved" | "declined";
@@ -182,6 +183,69 @@ export default function AdminPage() {
   useEffect(() => {
     loadFromStorage();
   }, [loadFromStorage]);
+
+  /* Supabase Realtime — stream new submissions without a page refresh */
+  const realtimeRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowser>["channel"]> | null>(null);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowser();
+
+    const channel = supabase
+      .channel("admin-submissions-realtime")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "submissions" },
+        (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const r = payload.new as any;
+          const incoming: Submission = {
+            id:          r.id,
+            user:        r.x_username,
+            xHandle:     r.x_username,
+            link:        r.tweet_url,
+            tweetId:     r.tweet_id,
+            points:      r.points,
+            status:      r.status,
+            submittedAt: r.submitted_at,
+            reviewedAt:  r.reviewed_at ?? null,
+            reviewedBy:  r.reviewed_by ?? null,
+          };
+          setSubs(prev =>
+            prev.some(s => s.id === incoming.id) ? prev : [incoming, ...prev]
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "content_submissions" },
+        (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const r = payload.new as any;
+          const incoming: ContentSubmission = {
+            id:          r.id,
+            xHandle:     r.x_handle,
+            title:       r.title,
+            contentUrl:  r.content_url,
+            status:      r.status,
+            points:      r.points,
+            submittedAt: r.submitted_at,
+            reviewedAt:  r.reviewed_at ?? null,
+            reviewedBy:  r.reviewed_by ?? null,
+          };
+          setContentSubs(prev =>
+            prev.some(s => s.id === incoming.id) ? prev : [incoming, ...prev]
+          );
+        },
+      )
+      .subscribe();
+
+    realtimeRef.current = channel;
+
+    return () => {
+      supabase.removeChannel(channel);
+      realtimeRef.current = null;
+    };
+  }, []);
 
   /* Approve / decline via Supabase API, then update local state */
   const updateSub = async (id: string, status: SubStatus) => {
@@ -454,6 +518,12 @@ export default function AdminPage() {
                 {contentPending} pending content
               </button>
             )}
+            <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px",
+              background: "rgba(0,200,100,0.07)", border: "1px solid rgba(0,200,100,0.2)",
+              borderRadius: 8, fontSize: 11, color: "rgba(0,200,100,0.8)", fontWeight: 600 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00c864", display: "inline-block", flexShrink: 0 }} />
+              Live
+            </div>
             <button onClick={() => { loadFromStorage(); }} style={{
               background: "rgba(0,82,255,0.1)", border: "1px solid rgba(0,82,255,0.25)",
               borderRadius: 8, color: "#3d7eff", padding: "7px 14px",
