@@ -1175,7 +1175,7 @@ function FarmPointsContent() {
               className="farm-input"
               value={twitterLink}
               onChange={e => { setTwitterLink(e.target.value); setSubmitError(""); }}
-              placeholder={`https://x.com/${twitterUser}/status/…`}
+              placeholder="https://x.com/username/status/..."
               style={{ fontSize: 12, marginBottom: 2 }}
             />
             {submitError && (
