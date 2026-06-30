@@ -568,7 +568,8 @@ textarea {
     padding: 10px 14px !important;
   }
   .farm-pts-label {
-    display: none !important;   /* hidden — emoji + number say it all */
+    font-size: 9px !important;
+    margin-bottom: 6px !important;
   }
   .farm-pts-number {
     font-size: 26px !important;

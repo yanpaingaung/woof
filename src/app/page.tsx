@@ -1033,7 +1033,19 @@ function FarmPointsContent() {
                 </div>
               )}
             </div>
-            <span className="farm-pts-emoji" style={{ fontSize: 48 }}>🐕</span>
+            <svg
+              className="farm-pts-emoji"
+              style={{ fontSize: 48, width: "1em", height: "1em", flexShrink: 0 }}
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="17" r="7" fill="#0052FF"/>
+              <circle cx="12" cy="31" r="7" fill="#0052FF"/>
+              <rect x="11" y="20" width="26" height="8" rx="4" fill="#0052FF"/>
+              <circle cx="36" cy="17" r="7" fill="#0052FF"/>
+              <circle cx="36" cy="31" r="7" fill="#0052FF"/>
+            </svg>
           </div>
         </div>
 
