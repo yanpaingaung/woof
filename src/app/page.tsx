@@ -691,7 +691,122 @@ function FarmPointsGated() {
   );
 }
 
+function HowToEarnModal({ onClose }: { onClose: () => void }) {
+  // Close on backdrop click
+  const onBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onBackdrop}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.55)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "16px",
+        animation: "fadeIn 0.18s ease",
+      }}
+    >
+      <div style={{
+        background: "linear-gradient(135deg,rgba(255,255,255,0.96) 0%,rgba(235,245,255,0.96) 100%)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        borderRadius: 24,
+        border: "1px solid rgba(0,82,255,0.18)",
+        boxShadow: "0 8px 48px rgba(0,40,160,0.22), 0 2px 12px rgba(0,0,0,0.10)",
+        width: "100%",
+        maxWidth: 480,
+        maxHeight: "85vh",
+        overflowY: "auto",
+        padding: "28px 28px 24px",
+        position: "relative",
+        animation: "modalIn 0.2s ease",
+        fontFamily: "system-ui,sans-serif",
+      }}>
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: "absolute", top: 16, right: 16,
+            background: "rgba(0,0,0,0.07)", border: "none", borderRadius: "50%",
+            width: 30, height: 30, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 16, color: "#475569", lineHeight: 1,
+          }}
+        >✕</button>
+
+        {/* Title */}
+        <div style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 20 }}>
+          🦴 How to Earn WOOF Points
+        </div>
+
+        {/* Submit Reply */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
+            💬 Submit Reply (+17 Points)
+          </div>
+          <ol style={{ margin: "0 0 12px", paddingLeft: 20, fontSize: 13, color: "#334155", lineHeight: 1.75 }}>
+            <li>Use the WOOF Translator to generate a WOOF-style reply.</li>
+            <li>Post that WOOF reply under a Base ecosystem post on X.</li>
+            <li>Copy your reply URL.</li>
+            <li>Paste the link into Submit Reply and submit it for review.</li>
+          </ol>
+          <div style={{ background: "rgba(0,82,255,0.06)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#475569", lineHeight: 1.7 }}>
+            <strong style={{ color: "#0F172A" }}>Note</strong><br />
+            • All submissions are manually reviewed.<br />
+            • Alt accounts and bots will be rejected.<br />
+            • Only X Premium (Twitter Blue) accounts are eligible.
+          </div>
+        </div>
+
+        <hr style={{ border: "none", borderTop: "1px solid rgba(0,82,255,0.12)", margin: "0 0 20px" }} />
+
+        {/* Submit Content */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
+            📝 Submit Content (+1006 Points)
+          </div>
+          <ol style={{ margin: "0 0 12px", paddingLeft: 20, fontSize: 13, color: "#334155", lineHeight: 1.75 }}>
+            <li>Submit original, high-quality content related to the Base ecosystem.</li>
+            <li>WOOF-related content is also accepted.</li>
+            <li>Points are awarded based on the overall quality of the content.</li>
+          </ol>
+          <div style={{ background: "rgba(0,82,255,0.06)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#475569", lineHeight: 1.7 }}>
+            <strong style={{ color: "#0F172A" }}>Note</strong><br />
+            • All submissions are manually reviewed.<br />
+            • Alt accounts and bots will be rejected.<br />
+            • Only X Premium (Twitter Blue) accounts are eligible.
+          </div>
+        </div>
+
+        {/* Got it */}
+        <button
+          onClick={onClose}
+          style={{
+            width: "100%", background: "#0052FF", border: "none", borderRadius: 12,
+            color: "#ffffff", padding: "13px 0", fontWeight: 700, fontSize: 15,
+            cursor: "pointer", fontFamily: "system-ui,sans-serif",
+            boxShadow: "0 2px 10px rgba(0,82,255,0.30)",
+          }}
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function FarmPointsContent() {
+  const [showHowToEarn, setShowHowToEarn] = useState(false);
   const [twitterUser, setTwitterUser] = useState<string | null>(null);
   const [twitterInput, setTwitterInput] = useState("");
   const [showConnect, setShowConnect] = useState(false);
@@ -883,6 +998,9 @@ function FarmPointsContent() {
 
       <div className="farm-tab-appear" style={{ position: "relative", zIndex: 1 }}>
 
+      {/* ─── How to Earn modal ─── */}
+      {showHowToEarn && <HowToEarnModal onClose={() => setShowHowToEarn(false)} />}
+
       {/* ─── Twitter connect modal ─── */}
       {showConnect && (
         <div style={{
@@ -994,7 +1112,7 @@ function FarmPointsContent() {
             It's time to bring the meme meta back to Base.
           </p>
           <div style={{ display: "flex", gap: 12 }}>
-            <button className="farm-btn-secondary">How to Earn WOOF Points</button>
+            <button className="farm-btn-secondary" onClick={() => setShowHowToEarn(true)}>How to Earn WOOF Points</button>
           </div>
         </div>
         {/* Mascot group */}
