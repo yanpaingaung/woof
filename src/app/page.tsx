@@ -1541,7 +1541,7 @@ export default function Home() {
   const win98Ids: WinId[] = ["welcome", "woofing", "community", "about"];
 
   const MOBILE_NAV = [
-    { key: "farm"      as const, icon: "🦴", label: "Farm"      },
+    { key: "farm"      as const, icon: <img src="/pointbone.png" alt="" style={{ width: 24, height: 24, objectFit: "contain" }} />, label: "Farm"      },
     { key: "translate" as const, icon: "🐾", label: "Translate" },
     { key: "community" as const, icon: "🌐", label: "Community" },
     { key: "about"     as const, icon: "ℹ️",  label: "About"     },

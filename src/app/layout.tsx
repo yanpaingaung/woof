@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "WOOFonBASE",
-  description: "Translate English to Woof and back. Est. 1998.",
+  description: "WOOOF Protocol is here to bring meme meta back to BASE.",
 };
 
 export default async function RootLayout({
