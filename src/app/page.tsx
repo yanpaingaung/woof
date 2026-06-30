@@ -982,6 +982,7 @@ function FarmPointsContent() {
             fontWeight: 900,
             lineHeight: 1.05,
             margin: "0 0 12px",
+            paddingBottom: "0.15em",
             background: "linear-gradient(135deg,#ffffff 0%,#7dd3fc 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
