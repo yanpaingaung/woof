@@ -657,6 +657,41 @@ function PawBackground() {
   );
 }
 
+function FarmPointsGated() {
+  const { isConnected } = useAccount();
+  if (isConnected) return <FarmPointsContent />;
+  return (
+    <div style={{
+      minHeight: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+    }}>
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid #E5E7EB",
+        borderRadius: 20,
+        padding: "36px 32px 32px",
+        width: 320,
+        maxWidth: "100%",
+        boxShadow: "0 8px 40px rgba(0,40,160,0.22), 0 2px 12px rgba(0,0,0,0.10)",
+        textAlign: "center",
+        fontFamily: "system-ui,sans-serif",
+      }}>
+        <div style={{ fontSize: 36, marginBottom: 12 }}>🦴</div>
+        <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 8, color: "#0F172A" }}>
+          Connect Your Base Wallet
+        </div>
+        <div style={{ fontSize: 13, color: "#475569", marginBottom: 24, lineHeight: 1.6 }}>
+          A Base wallet is required to access Farm Points and track your WOOF rewards.
+        </div>
+        <WalletConnectButton />
+      </div>
+    </div>
+  );
+}
+
 function FarmPointsContent() {
   const [twitterUser, setTwitterUser] = useState<string | null>(null);
   const [twitterInput, setTwitterInput] = useState("");
@@ -1315,7 +1350,7 @@ export default function Home() {
           </span>
         </div>
         <div className="mobile-content">
-          <div style={{ display: mobileTab === "farm"      ? "block" : "none", minHeight: "100%", background: "radial-gradient(ellipse 62% 48% at -6% -4%, #0038CC 0%, transparent 100%), radial-gradient(ellipse 58% 44% at 106% -4%, #0046D4 0%, transparent 100%), linear-gradient(180deg, #1578B4 0%, #1A8EC8 55%, #1E96CC 100%)" }}><FarmPointsContent /></div>
+          <div style={{ display: mobileTab === "farm"      ? "block" : "none", minHeight: "100%", background: "radial-gradient(ellipse 62% 48% at -6% -4%, #0038CC 0%, transparent 100%), radial-gradient(ellipse 58% 44% at 106% -4%, #0046D4 0%, transparent 100%), linear-gradient(180deg, #1578B4 0%, #1A8EC8 55%, #1E96CC 100%)" }}><FarmPointsGated /></div>
           <div style={{ display: mobileTab === "translate" ? "block" : "none", minHeight: "100%", background: "#c0c0c0" }}><WoofingContent /></div>
           <div style={{ display: mobileTab === "community" ? "block" : "none", minHeight: "100%", background: "#c0c0c0" }}><CommunityContent /></div>
           <div style={{ display: mobileTab === "about"     ? "block" : "none", minHeight: "100%", background: "#c0c0c0" }}><AboutContent /></div>
@@ -1417,7 +1452,7 @@ export default function Home() {
           onFocus={focus} onClose={close} onMinimize={minimize} onMaximize={maximize}
           defaultWidth={700} defaultHeight={620}
         >
-          <FarmPointsContent />
+          <FarmPointsGated />
         </ModernDraggableWindow>
 
       </div>
