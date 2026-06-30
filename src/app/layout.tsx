@@ -37,8 +37,8 @@ export default async function RootLayout({
   const initialState = cookieToInitialState(getConfig(), cookie);
 
   return (
-    <html lang="en" className={`${pixelHeading.variable} ${pixelBody.variable} h-full`}>
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${pixelHeading.variable} ${pixelBody.variable} h-full`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <WalletProvider initialState={initialState}>{children}</WalletProvider>
       </body>
     </html>
