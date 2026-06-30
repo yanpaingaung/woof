@@ -10,6 +10,7 @@ export function getConfig() {
       baseAccount({
         appName: "WOOFonBASE",
         appLogoUrl: "https://wooftranslator.vercel.app/woofhead.png",
+        preference: { telemetry: false },
       }),
     ],
     storage: createStorage({ storage: cookieStorage }),

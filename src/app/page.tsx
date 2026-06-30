@@ -423,10 +423,7 @@ function WalletConnectButton() {
       try {
         await comm.waitForPopupLoaded();
       } catch (err) {
-        // Only abort if the user explicitly dismissed the "popup blocked"
-        // dialog.  Other errors (e.g. "Analytics SDK: SDK platform not
-        // initialized" on first click before the telemetry script loads) are
-        // transient — fall through so connect() handles the flow itself.
+        // Only abort if the browser explicitly blocked the popup.
         const msg = String((err as { message?: string })?.message ?? "").toLowerCase();
         if (msg.includes("popup") || msg.includes("blocked")) return;
       }
