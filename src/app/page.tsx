@@ -715,91 +715,114 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
         animation: "fadeIn 0.18s ease",
       }}
     >
-      <div style={{
-        background: "linear-gradient(135deg,rgba(255,255,255,0.96) 0%,rgba(235,245,255,0.96) 100%)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        borderRadius: 24,
-        border: "1px solid rgba(0,82,255,0.18)",
-        boxShadow: "0 8px 48px rgba(0,40,160,0.22), 0 2px 12px rgba(0,0,0,0.10)",
-        width: "100%",
-        maxWidth: 480,
-        maxHeight: "85vh",
-        overflowY: "auto",
-        padding: "28px 28px 24px",
-        position: "relative",
-        animation: "modalIn 0.2s ease",
-        fontFamily: "system-ui,sans-serif",
-      }}>
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          style={{
-            position: "absolute", top: 16, right: 16,
-            background: "rgba(0,0,0,0.07)", border: "none", borderRadius: "50%",
-            width: 30, height: 30, cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 16, color: "#475569", lineHeight: 1,
-          }}
-        >✕</button>
-
-        {/* Title */}
-        <div style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 20 }}>
-          🦴 How to Earn WOOF Points
+      <div
+        className="hte-card"
+        style={{
+          background: "linear-gradient(135deg,rgba(255,255,255,0.96) 0%,rgba(235,245,255,0.96) 100%)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderRadius: 24,
+          border: "1px solid rgba(0,82,255,0.18)",
+          boxShadow: "0 8px 48px rgba(0,40,160,0.22), 0 2px 12px rgba(0,0,0,0.10)",
+          width: "100%",
+          maxWidth: 480,
+          maxHeight: "85vh",
+          display: "flex",
+          flexDirection: "column",
+          animation: "modalIn 0.2s ease",
+          fontFamily: "system-ui,sans-serif",
+          overflow: "hidden",
+        }}
+      >
+        {/* ── Sticky header ── */}
+        <div className="hte-header" style={{
+          flexShrink: 0,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "22px 24px 16px",
+          borderBottom: "1px solid rgba(0,82,255,0.10)",
+        }}>
+          <div className="hte-title" style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", paddingRight: 36 }}>
+            🦴 How to Earn WOOF Points
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              flexShrink: 0,
+              background: "rgba(0,0,0,0.07)", border: "none", borderRadius: "50%",
+              width: 30, height: 30, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 16, color: "#475569", lineHeight: 1,
+            }}
+          >✕</button>
         </div>
 
-        {/* Submit Reply */}
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
-            💬 Submit Reply
+        {/* ── Scrollable body ── */}
+        <div className="hte-body" style={{
+          flex: 1,
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"],
+          scrollBehavior: "smooth",
+          padding: "20px 24px",
+        }}>
+          {/* Submit Reply */}
+          <div style={{ marginBottom: 20 }}>
+            <div className="hte-section-title" style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
+              💬 Submit Reply
+            </div>
+            <ol className="hte-list" style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
+              <li>Use the WOOF Translator to generate a WOOF-style reply.</li>
+              <li>Post that WOOF reply under a Base ecosystem post on X.</li>
+              <li>Copy your reply URL.</li>
+              <li>Paste the link into Submit Reply and submit it for review.</li>
+            </ol>
+            <div className="hte-note" style={{ background: "rgba(0,82,255,0.06)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#475569", lineHeight: 1.7 }}>
+              <strong style={{ color: "#0F172A" }}>Note</strong><br />
+              • All submissions are manually reviewed.<br />
+              • Alt accounts and bots will be rejected.<br />
+              • Only X Premium (Twitter Blue) accounts are eligible.
+            </div>
           </div>
-          <ol style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
-            <li>Use the WOOF Translator to generate a WOOF-style reply.</li>
-            <li>Post that WOOF reply under a Base ecosystem post on X.</li>
-            <li>Copy your reply URL.</li>
-            <li>Paste the link into Submit Reply and submit it for review.</li>
-          </ol>
-          <div style={{ background: "rgba(0,82,255,0.06)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#475569", lineHeight: 1.7 }}>
-            <strong style={{ color: "#0F172A" }}>Note</strong><br />
-            • All submissions are manually reviewed.<br />
-            • Alt accounts and bots will be rejected.<br />
-            • Only X Premium (Twitter Blue) accounts are eligible.
+
+          <hr style={{ border: "none", borderTop: "1px solid rgba(0,82,255,0.12)", margin: "0 0 20px" }} />
+
+          {/* Submit Content */}
+          <div>
+            <div className="hte-section-title" style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
+              📝 Submit Content
+            </div>
+            <ol className="hte-list" style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
+              <li>Submit original, high-quality content related to the Base ecosystem.</li>
+              <li>WOOF-related content is also accepted.</li>
+              <li>Points are awarded based on the overall quality of the content.</li>
+            </ol>
+            <div className="hte-note" style={{ background: "rgba(0,82,255,0.06)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#475569", lineHeight: 1.7 }}>
+              <strong style={{ color: "#0F172A" }}>Note</strong><br />
+              • All submissions are manually reviewed.<br />
+              • Alt accounts and bots will be rejected.<br />
+              • Only X Premium (Twitter Blue) accounts are eligible.
+            </div>
           </div>
         </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid rgba(0,82,255,0.12)", margin: "0 0 20px" }} />
-
-        {/* Submit Content */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
-            📝 Submit Content
-          </div>
-          <ol style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
-            <li>Submit original, high-quality content related to the Base ecosystem.</li>
-            <li>WOOF-related content is also accepted.</li>
-            <li>Points are awarded based on the overall quality of the content.</li>
-          </ol>
-          <div style={{ background: "rgba(0,82,255,0.06)", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: "#475569", lineHeight: 1.7 }}>
-            <strong style={{ color: "#0F172A" }}>Note</strong><br />
-            • All submissions are manually reviewed.<br />
-            • Alt accounts and bots will be rejected.<br />
-            • Only X Premium (Twitter Blue) accounts are eligible.
-          </div>
+        {/* ── Sticky footer ── */}
+        <div className="hte-footer" style={{
+          flexShrink: 0,
+          padding: "16px 24px 20px",
+          borderTop: "1px solid rgba(0,82,255,0.10)",
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              width: "100%", background: "#0052FF", border: "none", borderRadius: 12,
+              color: "#ffffff", padding: "13px 0", fontWeight: 700, fontSize: 15,
+              cursor: "pointer", fontFamily: "system-ui,sans-serif",
+              boxShadow: "0 2px 10px rgba(0,82,255,0.30)",
+            }}
+          >
+            Got it
+          </button>
         </div>
-
-        {/* Got it */}
-        <button
-          onClick={onClose}
-          style={{
-            width: "100%", background: "#0052FF", border: "none", borderRadius: 12,
-            color: "#ffffff", padding: "13px 0", fontWeight: 700, fontSize: 15,
-            cursor: "pointer", fontFamily: "system-ui,sans-serif",
-            boxShadow: "0 2px 10px rgba(0,82,255,0.30)",
-          }}
-        >
-          Got it
-        </button>
       </div>
     </div>
   );

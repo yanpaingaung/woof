@@ -458,6 +458,39 @@ textarea {
 }
 
 /* Fade-in when Farm Points tab opens */
+@media (max-width: 767px) {
+  .hte-card {
+    max-width: 92vw !important;
+    max-height: 85vh !important;
+    border-radius: 20px !important;
+  }
+  .hte-header {
+    padding: 16px 16px 12px !important;
+  }
+  .hte-title {
+    font-size: 15px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hte-body {
+    padding: 14px 16px !important;
+  }
+  .hte-section-title {
+    font-size: 13px !important;
+  }
+  .hte-list {
+    font-size: 12px !important;
+    line-height: 1.65 !important;
+  }
+  .hte-note {
+    font-size: 11px !important;
+  }
+  .hte-footer {
+    padding: 12px 16px env(safe-area-inset-bottom, 16px) !important;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
