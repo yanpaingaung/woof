@@ -752,7 +752,7 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
         {/* Submit Reply */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
-            💬 Submit Reply (+17 Points)
+            💬 Submit Reply
           </div>
           <ol style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
             <li>Use the WOOF Translator to generate a WOOF-style reply.</li>
@@ -773,7 +773,7 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
         {/* Submit Content */}
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#0052FF", marginBottom: 10 }}>
-            📝 Submit Content (+1006 Points)
+            📝 Submit Content
           </div>
           <ol style={{ margin: "0 0 12px", paddingLeft: 24, fontSize: 13, color: "#334155", lineHeight: 1.75, listStyleType: "decimal", listStylePosition: "outside" }}>
             <li>Submit original, high-quality content related to the Base ecosystem.</li>
