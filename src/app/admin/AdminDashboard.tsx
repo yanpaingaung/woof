@@ -185,10 +185,11 @@ export default function AdminPage() {
   }, [loadFromStorage]);
 
   /* Supabase Realtime — stream new submissions without a page refresh */
-  const realtimeRef = useRef<ReturnType<ReturnType<typeof getSupabaseBrowser>["channel"]> | null>(null);
+  const realtimeRef = useRef<{ unsubscribe: () => void } | null>(null);
 
   useEffect(() => {
     const supabase = getSupabaseBrowser();
+    if (!supabase) return; // env vars missing — degrade gracefully, no crash
 
     const channel = supabase
       .channel("admin-submissions-realtime")
@@ -239,10 +240,10 @@ export default function AdminPage() {
       )
       .subscribe();
 
-    realtimeRef.current = channel;
+    realtimeRef.current = { unsubscribe: () => supabase.removeChannel(channel) };
 
     return () => {
-      supabase.removeChannel(channel);
+      realtimeRef.current?.unsubscribe();
       realtimeRef.current = null;
     };
   }, []);
