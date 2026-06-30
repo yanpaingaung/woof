@@ -828,6 +828,83 @@ function HowToEarnModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function ConnectedAccountsBar({
+  twitterUser,
+  onDisconnectTwitter,
+  onConnectTwitter,
+}: {
+  twitterUser: string | null;
+  onDisconnectTwitter: () => void;
+  onConnectTwitter: () => void;
+}) {
+  const { address } = useAccount();
+  const { disconnect } = useDisconnect();
+
+  const iconBtn = (onClick: () => void, label: string) => (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      style={{
+        flexShrink: 0,
+        background: "rgba(255,255,255,0.18)", border: "none", borderRadius: "50%",
+        width: 22, height: 22, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 10, color: "rgba(255,255,255,0.85)", lineHeight: 1,
+      }}
+    >✕</button>
+  );
+
+  return (
+    <div className="ca-bar">
+      {/* Wallet row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{
+          background: "rgba(0,82,255,0.30)", border: "1px solid rgba(0,82,255,0.55)",
+          borderRadius: 100, color: "#ffffff", padding: "5px 11px",
+          fontSize: 12, fontWeight: 700, fontFamily: "system-ui,sans-serif",
+          display: "inline-flex", alignItems: "center", gap: 5,
+          whiteSpace: "nowrap",
+        }}>
+          {BASE_LOGO}
+          {address ? shortenAddress(address) : ""}
+        </span>
+        {iconBtn(() => disconnect(), "Disconnect wallet")}
+      </div>
+
+      {/* X account row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        {twitterUser ? (
+          <>
+            <span style={{
+              background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.40)",
+              borderRadius: 100, color: "#ffffff", padding: "5px 11px",
+              fontSize: 12, fontWeight: 700, fontFamily: "system-ui,sans-serif",
+              display: "inline-flex", alignItems: "center", gap: 5,
+              whiteSpace: "nowrap",
+            }}>
+              𝕏 @{twitterUser}
+            </span>
+            {iconBtn(onDisconnectTwitter, "Disconnect X account")}
+          </>
+        ) : (
+          <button
+            onClick={onConnectTwitter}
+            style={{
+              background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.30)",
+              borderRadius: 100, color: "#ffffff", padding: "5px 12px",
+              cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "system-ui,sans-serif",
+              display: "inline-flex", alignItems: "center", gap: 5,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span>𝕏</span> Connect X
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function FarmPointsContent() {
   const [showHowToEarn, setShowHowToEarn] = useState(false);
   const [twitterUser, setTwitterUser] = useState<string | null>(null);
@@ -1070,12 +1147,9 @@ function FarmPointsContent() {
         </div>
       )}
 
-      {/* ─── Base Wallet ─── */}
-      <WalletConnectButton />
-
       {/* ─── Header ─── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <img
             src="/woofhead.png"
             alt=""
@@ -1089,30 +1163,11 @@ function FarmPointsContent() {
           />
           <span style={{ fontWeight: 900, fontSize: 20, letterSpacing: "-0.5px", color: "#ffffff" }}>WOOF</span>
         </div>
-        {twitterUser ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{
-              background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.55)",
-              borderRadius: 100, color: "#ffffff", padding: "7px 14px", fontSize: 13, fontWeight: 700,
-            }}>𝕏 @{twitterUser}</span>
-            <button
-              onClick={() => setTwitterUser(null)}
-              style={{ background: "rgba(220,38,38,0.80)", border: "1px solid rgba(220,38,38,0.4)", borderRadius: 100, color: "#ffffff", padding: "7px 12px", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "system-ui,sans-serif" }}
-            >Disconnect</button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowConnect(true)}
-            style={{
-              background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.35)",
-              borderRadius: 100, color: "#ffffff", padding: "7px 16px",
-              cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "system-ui,sans-serif",
-              display: "flex", alignItems: "center", gap: 6,
-            }}
-          >
-            <span style={{ fontSize: 14 }}>𝕏</span> Connect X
-          </button>
-        )}
+        <ConnectedAccountsBar
+          twitterUser={twitterUser}
+          onDisconnectTwitter={() => setTwitterUser(null)}
+          onConnectTwitter={() => setShowConnect(true)}
+        />
       </div>
 
       {/* ─── Hero ─── */}

@@ -458,6 +458,24 @@ textarea {
 }
 
 /* Fade-in when Farm Points tab opens */
+/* Connected accounts bar — stacks on mobile, row on desktop */
+.ca-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+  .ca-bar {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+}
+
 @media (max-width: 767px) {
   .hte-card {
     max-width: 92vw !important;
