@@ -25,7 +25,15 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "WOOFonBASE",
-  description: "WOOOF Protocol is here to bring meme meta back to BASE.",
+  description: "WOOF Protocol is here to bring the meme meta back to Base.",
+  openGraph: {
+    title: "WOOFonBASE",
+    description: "WOOF Protocol is here to bring the meme meta back to Base.",
+  },
+  twitter: {
+    title: "WOOFonBASE",
+    description: "WOOF Protocol is here to bring the meme meta back to Base.",
+  },
 };
 
 export default async function RootLayout({
