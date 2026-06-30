@@ -12,8 +12,8 @@ function isAuthorized(req: NextRequest): boolean {
     return false;
   }
 
-  const user = process.env.ADMIN_USER ?? "";
-  const pass = process.env.ADMIN_PASSWORD ?? "";
+  const user = (process.env.ADMIN_USER ?? "").trim();
+  const pass = (process.env.ADMIN_PASSWORD ?? "").trim();
 
   // Require both env vars to be set; empty credentials never match.
   if (!user || !pass) return false;
