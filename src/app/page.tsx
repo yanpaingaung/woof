@@ -316,7 +316,6 @@ function CommunityContent() {
         </div>
         <div className="w98-raised p-3 flex gap-2 justify-center">
           <a href="https://x.com/woof0nbase" target="_blank" rel="noopener noreferrer"><button className="w98-btn">🐦 Twitter</button></a>
-          <button className="w98-btn">💬 Discord</button>
           <a href="https://t.me/w00f0nbase" target="_blank" rel="noopener noreferrer"><button className="w98-btn">📱 Telegram</button></a>
         </div>
       </div>
