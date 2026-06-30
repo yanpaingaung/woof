@@ -1,26 +1,623 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-pixel-body);
+  --font-mono: var(--font-pixel-body);
+  --font-heading: var(--font-pixel-heading);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #008080;   /* classic Win98 teal desktop */
+  --foreground: #000000;
+  --border: #808080;
+  --input: #ffffff;
+  --ring: #000080;
+  --primary: #000080;
+  --primary-foreground: #ffffff;
+  --radius: 0;
+}
+
+/* ── Desktop wallpaper ── */
+@layer base {
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: var(--font-pixel-body), 'Courier New', monospace;
+  }
+  body {
+    background-color: #008080;
+    background-image: url('/woof-cover.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ══════════════════════════════════
+   Windows 98 component classes
+══════════════════════════════════ */
+
+/* Raised panel (buttons, menus, window chrome) */
+.w98-raised {
+  background: #c0c0c0;
+  border-top:    2px solid #ffffff;
+  border-left:   2px solid #ffffff;
+  border-right:  2px solid #808080;
+  border-bottom: 2px solid #808080;
+}
+
+/* Sunken panel (inputs, inset areas) */
+.w98-sunken {
+  background: #ffffff;
+  border-top:    2px solid #808080;
+  border-left:   2px solid #808080;
+  border-right:  2px solid #dfdfdf;
+  border-bottom: 2px solid #dfdfdf;
+}
+
+/* Window outer frame */
+.w98-window {
+  background: #c0c0c0;
+  border-top:    2px solid #dfdfdf;
+  border-left:   2px solid #dfdfdf;
+  border-right:  2px solid #404040;
+  border-bottom: 2px solid #404040;
+  box-shadow: 1px 1px 0 #000000;
+}
+
+/* Title bar */
+.w98-titlebar {
+  background: linear-gradient(to right, #000080 0%, #1084d0 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 4px 3px 6px;
+  font-family: var(--font-pixel-heading), 'Arial', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+/* Title bar buttons (close/min/max) */
+.w98-titlebar-btn {
+  width: 16px;
+  height: 14px;
+  background: #c0c0c0;
+  border-top:    1px solid #ffffff;
+  border-left:   1px solid #ffffff;
+  border-right:  1px solid #808080;
+  border-bottom: 1px solid #808080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  color: #000000;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+}
+.w98-titlebar-btn:active {
+  border-top:    1px solid #808080;
+  border-left:   1px solid #808080;
+  border-right:  1px solid #ffffff;
+  border-bottom: 1px solid #ffffff;
+}
+
+/* Standard button */
+.w98-btn {
+  background: #c0c0c0;
+  border-top:    2px solid #ffffff;
+  border-left:   2px solid #ffffff;
+  border-right:  2px solid #808080;
+  border-bottom: 2px solid #808080;
+  padding: 4px 12px;
+  font-family: var(--font-pixel-body), monospace;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #000000;
+  white-space: nowrap;
+  transition: none;
+}
+.w98-btn:hover { background: #d4d0c8; }
+.w98-btn:active {
+  border-top:    2px solid #808080;
+  border-left:   2px solid #808080;
+  border-right:  2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  padding: 5px 11px 3px 13px;
+}
+.w98-btn:disabled {
+  color: #808080;
+  text-shadow: 1px 1px 0 #ffffff;
+  cursor: default;
+}
+
+/* Menu bar */
+.w98-menubar {
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+  display: flex;
+  align-items: stretch;
+  padding: 0 2px;
+}
+.w98-menuitem {
+  padding: 3px 10px;
+  font-family: var(--font-pixel-body), monospace;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #000000;
+  white-space: nowrap;
+}
+.w98-menuitem:hover,
+.w98-menuitem.active {
+  background: #000080;
+  color: #ffffff;
+}
+
+/* Taskbar */
+.w98-taskbar {
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  gap: 4px;
+}
+
+/* Taskbar task button */
+.w98-task {
+  background: #c0c0c0;
+  border-top:    2px solid #ffffff;
+  border-left:   2px solid #ffffff;
+  border-right:  2px solid #808080;
+  border-bottom: 2px solid #808080;
+  padding: 2px 8px;
+  font-family: var(--font-pixel-body), monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #000000;
+  min-width: 80px;
+}
+.w98-task.active {
+  border-top:    2px solid #808080;
+  border-left:   2px solid #808080;
+  border-right:  2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  background: #b0b0b0;
+}
+.w98-task:hover { background: #d4d0c8; }
+
+/* Separator */
+.w98-sep {
+  width: 2px;
+  background: #808080;
+  margin: 2px 4px;
+  border-right: 1px solid #ffffff;
+}
+
+/* Status bar */
+.w98-statusbar {
+  background: #c0c0c0;
+  border-top: 1px solid #808080;
+  font-family: var(--font-pixel-body), monospace;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Scrollbar-style inset label */
+.w98-label {
+  border-right:  1px solid #808080;
+  border-bottom: 1px solid #808080;
+  border-left:   1px solid #dfdfdf;
+  border-top:    1px solid #dfdfdf;
+  padding: 1px 6px;
+}
+
+/* Blinking buy button */
+@keyframes woof-blink {
+  0%, 49%  { background: #ff0000; color: #ffff00; }
+  50%, 100% { background: #ffff00; color: #ff0000; }
+}
+.w98-buy-btn {
+  animation: woof-blink 0.8s step-end infinite;
+  border-top:    2px solid #ffffff;
+  border-left:   2px solid #ffffff;
+  border-right:  2px solid #808080;
+  border-bottom: 2px solid #808080;
+  padding: 3px 10px;
+  font-family: var(--font-pixel-heading), monospace;
+  font-size: 9px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.w98-buy-btn:active {
+  border-top:    2px solid #808080;
+  border-left:   2px solid #808080;
+  border-right:  2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+
+/* Marquee override */
+marquee { font-family: var(--font-pixel-body), monospace; }
+
+/* Textarea reset */
+textarea {
+  resize: none;
+  outline: none;
+  font-family: var(--font-pixel-body), monospace;
+}
+
+/* ══════════════════════════════════
+   Farm Points — XP sky blue theme
+══════════════════════════════════ */
+
+.farm-window {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.farm-titlebar {
+  background: linear-gradient(to bottom, #1ba1e2 0%, #0074c7 42%, #0052a3 100%);
+  border-bottom: 1px solid rgba(0, 40, 120, 0.35);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  user-select: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.farm-titlebar-btn {
+  width: 22px;
+  height: 17px;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 900;
+  color: #ffffff;
+  flex-shrink: 0;
+  border-top:    1px solid rgba(255,255,255,0.45);
+  border-left:   1px solid rgba(255,255,255,0.3);
+  border-right:  1px solid rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(0,0,0,0.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  transition: filter 0.1s;
+  font-family: 'Arial', sans-serif;
+}
+.farm-titlebar-btn:hover  { filter: brightness(1.18); }
+.farm-titlebar-btn:active {
+  border-top:    1px solid rgba(0,0,0,0.35);
+  border-left:   1px solid rgba(0,0,0,0.3);
+  border-right:  1px solid rgba(255,255,255,0.3);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  box-shadow: none;
+}
+.farm-titlebar-btn.ftb-close    { background: linear-gradient(to bottom, #e05040 0%, #b82020 100%); }
+.farm-titlebar-btn.ftb-minimize { background: linear-gradient(to bottom, #2a8ad8 0%, #1060b0 100%); }
+.farm-titlebar-btn.ftb-maximize { background: linear-gradient(to bottom, #2a8ad8 0%, #1060b0 100%); }
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 14px;
+  padding: 18px 20px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.30),
+    0 4px 24px rgba(0, 40, 180, 0.13),
+    0 1px 6px rgba(0, 0, 0, 0.07);
+  transition: box-shadow 0.2s ease, transform 0.18s ease, background 0.2s ease;
+}
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.40),
+    0 6px 30px rgba(0, 40, 180, 0.16),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.farm-btn-primary {
+  background: #0052FF;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 82, 255, 0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.farm-btn-primary:hover  {
+  background: #0041cc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 82, 255, 0.38), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.farm-btn-primary:active { transform: translateY(1px); box-shadow: 0 1px 4px rgba(0, 82, 255, 0.2); }
+.farm-btn-primary:disabled { opacity: 0.45; cursor: default; transform: none; box-shadow: none; }
+
+.farm-btn-secondary {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.farm-btn-secondary:hover  { background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
+.farm-btn-secondary:active { transform: translateY(0); }
+.farm-btn-secondary:disabled { opacity: 0.45; cursor: default; }
+
+.farm-input {
+  background: #ffffff;
+  border: 1px solid #D1D5DB;
+  border-radius: 10px;
+  color: #1F2937;
+  padding: 9px 13px;
+  width: 100%;
+  outline: none;
+  font-size: 0.875rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-sizing: border-box;
+}
+.farm-input:focus {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: #0052FF;
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.12);
+}
+.farm-input::placeholder { color: #9CA3AF; }
+
+/* Organic paw float — fade in, drift, fade out.
+   Animates opacity 0→1→1→0 with literal values so browsers interpolate natively.
+   filter: opacity(var(--paw-op)) is a static cap set per-element; final visible
+   opacity = css_opacity × filter_opacity, giving a smooth 0 → paw_op → 0 envelope. */
+@keyframes pawOrganic {
+  0%   {
+    opacity: 0;
+    transform: translateY(0px) translateX(0px) rotate(var(--paw-rot));
+    animation-timing-function: ease-out;
+  }
+  18%  {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  82%  {
+    opacity: 1;
+    animation-timing-function: ease-in;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(var(--paw-dy)) translateX(var(--paw-dx)) rotate(var(--paw-rot));
+  }
+}
+
+.paw-float-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.paw-float-bg img {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  filter: grayscale(1) brightness(8) opacity(var(--paw-op));
+  will-change: transform, opacity;
+}
+
+/* Hero mascot — responsive illustration */
+.farm-hero-mascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+.farm-hero-mascot-img {
+  height: clamp(100px, 28vw, 240px);
+  width: auto;
+  display: block;
+  max-width: 42vw;   /* never wider than 42% of viewport */
+  object-fit: contain;
+}
+
+/* Fade-in when Farm Points tab opens */
+@keyframes farmTabFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.farm-tab-appear {
+  animation: farmTabFade 0.32s ease-out both;
+}
+
+/* Mobile: Farm Points window becomes full-viewport modal */
+@media (max-width: 767px) {
+  .farm-window-mobile {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+    border: none !important;
+  }
+}
+
+/* ══════════════════════════════════
+   Mobile shell
+══════════════════════════════════ */
+.mobile-shell {
+  display: none;
+}
+
+.mobile-header {
+  background: linear-gradient(to right, #000080 0%, #1084d0 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  font-family: var(--font-pixel-heading), monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  user-select: none;
+  padding: max(12px, env(safe-area-inset-top)) 16px 10px;
+}
+
+.mobile-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.mobile-nav {
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  display: flex;
+  flex-shrink: 0;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+.mobile-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px 6px;
+  background: none;
+  border: none;
+  border-top: 3px solid transparent;
+  cursor: pointer;
+  color: #666666;
+  font-family: var(--font-pixel-body), monospace;
+  font-size: 8px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.mobile-nav-btn.active {
+  color: #000080;
+  border-top-color: #000080;
+  background: rgba(0, 0, 128, 0.06);
+}
+.mobile-nav-btn-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+@media (max-width: 767px) {
+  .mobile-shell {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #008080;
+    overflow: hidden;
+  }
+  .desktop-layout { display: none !important; }
+
+  /* ── Farm Points mobile layout ── */
+
+  /* Stack grid to single column */
+  .farm-points-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Points card → compact horizontal bar */
+  .farm-points-card {
+    padding: 10px 14px !important;
+  }
+  .farm-pts-label {
+    display: none !important;   /* hidden — emoji + number say it all */
+  }
+  .farm-pts-number {
+    font-size: 26px !important;
+    line-height: 1 !important;
+  }
+  .farm-pts-emoji {
+    font-size: 30px !important;
+  }
+  .farm-pts-hint {
+    font-size: 10px !important;
+    margin-top: 2px !important;
+  }
+  .farm-pts-pending {
+    font-size: 10px !important;
+    margin-top: 2px !important;
+  }
+
+  /* Streak card — comfortable padding */
+  .farm-streak-card {
+    padding: 12px 12px !important;
+  }
+  .farm-streak-label {
+    font-size: 9px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* 7-day circles — fill available width with flex, no fixed gaps */
+  .streak-circles-row {
+    gap: 0 !important;
+    justify-content: space-evenly !important;
+    margin-bottom: 10px !important;
+  }
+  .streak-circle-item {
+    flex: 1 !important;
+    min-width: 0 !important;
+    gap: 3px !important;
+  }
+  .streak-circle-dot {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 10px !important;
+  }
+  .streak-day-label {
+    font-size: 8px !important;
+  }
+  .streak-hint-text {
+    font-size: 9px !important;
+  }
+  .streak-status-text {
+    font-size: 10px !important;
+  }
 }
