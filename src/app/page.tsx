@@ -1454,7 +1454,7 @@ function FarmPointsContent() {
 /* ══════════════════════════════════════════════
    Desktop icon
 ══════════════════════════════════════════════ */
-function DesktopIcon({ icon, label, onDoubleClick }: { icon: string; label: string; onDoubleClick: () => void }) {
+function DesktopIcon({ icon, label, onDoubleClick }: { icon: React.ReactNode; label: string; onDoubleClick: () => void }) {
   return (
     <button
       onDoubleClick={onDoubleClick}
@@ -1477,12 +1477,12 @@ function DesktopIcon({ icon, label, onDoubleClick }: { icon: string; label: stri
 /* ══════════════════════════════════════════════
    Window metadata & initial state
 ══════════════════════════════════════════════ */
-const WIN_META: Record<WinId, { icon: string; title: string; label: string }> = {
+const WIN_META: Record<WinId, { icon: string; title: string; label: React.ReactNode }> = {
   welcome:      { icon: "🐾", title: "Welcome to WOOF.EXE",                label: "🏠 Welcome"      },
   woofing:      { icon: "🐾", title: "WOOFing",                             label: "🐾 WOOFing"      },
   community:    { icon: "🌐", title: "Community.exe — WOOF Social Hub",    label: "🌐 Community"    },
   about:        { icon: "ℹ️",  title: "About WOOF.EXE",                     label: "ℹ️ About"        },
-  "farm-points":{ icon: "🦴", title: "Farm Points.exe",                    label: "🦴 Farm Points"  },
+  "farm-points":{ icon: "🦴", title: "Farm Points.exe",                    label: <><img src="/pointbone.png" alt="" style={{ width: 14, height: 14, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 4 }} />Farm Points</> },
 };
 
 const INITIAL_WINS: WinState[] = [
@@ -1633,7 +1633,7 @@ export default function Home() {
           <DesktopIcon icon="🐾" label="WOOFing.exe"    onDoubleClick={() => open("woofing")} />
           <DesktopIcon icon="🌐" label="Community"       onDoubleClick={() => open("community")} />
           <DesktopIcon icon="ℹ️" label="About.txt"       onDoubleClick={() => open("about")} />
-          <DesktopIcon icon="🦴" label="Farm Points"     onDoubleClick={() => open("farm-points")} />
+          <DesktopIcon icon={<img src="/pointbone.png" alt="" style={{ width: 36, height: 36, objectFit: "contain" }} />} label="Farm Points" onDoubleClick={() => open("farm-points")} />
           <DesktopIcon icon="🪙" label="$WOOF Token"    onDoubleClick={() => {}} />
           <DesktopIcon icon="🗑️" label="Recycle Bin"    onDoubleClick={() => {}} />
         </div>
