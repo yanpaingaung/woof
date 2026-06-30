@@ -993,8 +993,7 @@ function FarmPointsContent() {
             It's time to bring the meme meta back to Base.
           </p>
           <div style={{ display: "flex", gap: 12 }}>
-            <button className="farm-btn-primary">Explore</button>
-            <button className="farm-btn-secondary">Learn More</button>
+            <button className="farm-btn-secondary">How to Earn WOOF Points</button>
           </div>
         </div>
         {/* Mascot group */}
