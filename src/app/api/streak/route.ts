@@ -1,22 +1,38 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-/* GET /api/streak?wallet=<address> — current streak for a wallet */
+/* GET /api/streak?wallet=<address>&x_username=<handle>
+   Looks up by wallet first; falls back to x_username for walletless records. */
 export async function GET(req: NextRequest) {
-  const wallet = new URL(req.url).searchParams.get("wallet");
-  if (!wallet) {
-    return Response.json({ error: "Missing wallet." }, { status: 400 });
+  const url        = new URL(req.url);
+  const wallet     = url.searchParams.get("wallet")?.toLowerCase() ?? "";
+  const x_username = url.searchParams.get("x_username")?.toLowerCase() ?? "";
+
+  if (!wallet && !x_username) {
+    return Response.json({ error: "Missing wallet or x_username." }, { status: 400 });
   }
 
-  const { data, error } = await supabaseAdmin
-    .from("daily_streaks")
-    .select("*")
-    .eq("wallet", wallet)
-    .maybeSingle();
-
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  // Primary lookup: wallet (covers wallet-linked records)
+  if (wallet) {
+    const { data, error } = await supabaseAdmin
+      .from("daily_streaks")
+      .select("*")
+      .eq("wallet", wallet)
+      .maybeSingle();
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    if (data)  return Response.json({ data });
   }
 
-  return Response.json({ data });
+  // Fallback: x_username (covers walletless backfilled records)
+  if (x_username) {
+    const { data, error } = await supabaseAdmin
+      .from("daily_streaks")
+      .select("*")
+      .eq("x_username", x_username)
+      .maybeSingle();
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ data });
+  }
+
+  return Response.json({ data: null });
 }
