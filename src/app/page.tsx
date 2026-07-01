@@ -1012,13 +1012,21 @@ function FarmPointsContent() {
       setApprovedPoints(Math.max(0, replyPts + contentPts + adjustPts));
       setPendingCount(replyPend + contentPend);
 
-      // Fetch streak from API
-      if (address) {
+      // Fetch streak from API (wallet first, x_username fallback for walletless records)
+      if (address || handle) {
         try {
-          const streakRes = await fetch(`/api/streak?wallet=${encodeURIComponent(address)}`);
+          const params = new URLSearchParams();
+          if (address) params.set("wallet", address);
+          if (handle)  params.set("x_username", handle.toLowerCase());
+          const streakRes = await fetch(`/api/streak?${params.toString()}`);
           if (streakRes.ok) {
             const { data: streakData } = await streakRes.json();
-            setStreakDay(streakData?.current_streak ?? 0);
+            const today2     = new Date().toISOString().slice(0, 10);
+            const d          = new Date(); d.setUTCDate(d.getUTCDate() - 1);
+            const yesterday2 = d.toISOString().slice(0, 10);
+            const lastActive = streakData?.last_active_date ?? "1970-01-01";
+            const streakActive = lastActive === today2 || lastActive === yesterday2;
+            setStreakDay(streakActive ? (streakData?.current_streak ?? 0) : 0);
             // Count approved submissions for today from already-fetched data
             const today = new Date().toISOString().slice(0, 10);
             const todayReplies = subs.filter(
@@ -1042,37 +1050,42 @@ function FarmPointsContent() {
     loadData(twitterUser);
   }, [twitterUser, loadData]);
 
-  // Realtime: update streak display instantly when admin approval advances the streak
+  // Realtime: update streak display instantly when admin approval advances the streak.
+  // Filter by x_username (always present) so walletless records are also caught.
   useEffect(() => {
-    if (!address) return;
+    if (!twitterUser) return;
     const supabase = getSupabaseBrowser();
     if (!supabase) return;
 
-    const walletLower = address.toLowerCase();
+    const usernameLower = twitterUser.toLowerCase();
     const channel = supabase
-      .channel(`streak-${walletLower}-${Date.now()}`)
+      .channel(`streak-${usernameLower}-${Date.now()}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "daily_streaks",
-          filter: `wallet=eq.${walletLower}`,
+          filter: `x_username=eq.${usernameLower}`,
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (payload: { new: any }) => {
           const row = payload.new;
           if (!row) return;
-          setStreakDay(row.current_streak ?? 0);
+          if (row.x_username !== usernameLower) return;
           const today = new Date().toISOString().slice(0, 10);
-          // When streak day earned → show threshold met; when streak resets → clear progress
-          setTodayCount(row.last_active_date === today ? 30 : 0);
+          const dRT = new Date(); dRT.setUTCDate(dRT.getUTCDate() - 1);
+          const yesterdayRT = dRT.toISOString().slice(0, 10);
+          const lastActive = row.last_active_date ?? "1970-01-01";
+          const streakActive = lastActive === today || lastActive === yesterdayRT;
+          setStreakDay(streakActive ? (row.current_streak ?? 0) : 0);
+          setTodayCount(lastActive === today ? 30 : 0);
         },
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [address]);
+  }, [twitterUser]);
 
   const handleConnect = () => {
     const handle = twitterInput.trim().replace(/^@/, "");
@@ -1297,24 +1310,25 @@ function FarmPointsContent() {
             Daily Streak 🔥
           </div>
 
-          {/* 7-day circles */}
+          {/* 7-day paw prints */}
           <div className="streak-circles-row" style={{ display: "flex", gap: 5, justifyContent: "space-between", marginBottom: 14 }}>
             {STREAK_DAYS.map((day) => {
               const filled = day <= streakDay;
-              const current = day === streakDay + 1;
+              const isNew  = day === streakDay;
               return (
                 <div key={day} className="streak-circle-item" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <div className="streak-circle-dot" style={{
-                    width: 30, height: 30, borderRadius: "50%",
-                    background: filled ? "#7dd3fc" : current ? "rgba(0,82,255,0.08)" : "rgba(31,41,55,0.06)",
-                    border: current ? "2px solid #0052FF" : filled ? "2px solid transparent" : "2px solid #D1D5DB",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: filled ? 13 : 10, fontWeight: 700,
-                    color: filled ? "#0077b6" : current ? "#0052FF" : "#9CA3AF",
-                  }}>
-                    {filled ? "✓" : day}
-                  </div>
-                  <span className="streak-day-label" style={{ fontSize: 9, color: "#64748B" }}>D{day}</span>
+                  <img
+                    src="/pawprint.png"
+                    alt={`Day ${day}`}
+                    className={isNew ? "streak-paw-new" : ""}
+                    style={{
+                      width: 30, height: 30,
+                      objectFit: "contain",
+                      filter: filled ? "none" : "grayscale(100%) opacity(0.25)",
+                      transition: "filter 0.3s ease",
+                    }}
+                  />
+                  <span className="streak-day-label" style={{ fontSize: 9, color: filled ? "#0077b6" : "#64748B" }}>D{day}</span>
                 </div>
               );
             })}
