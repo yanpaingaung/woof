@@ -1024,9 +1024,34 @@ function FarmPointsContent() {
             const today2     = new Date().toISOString().slice(0, 10);
             const d          = new Date(); d.setUTCDate(d.getUTCDate() - 1);
             const yesterday2 = d.toISOString().slice(0, 10);
-            const lastActive = streakData?.last_active_date ?? "1970-01-01";
+            let lastActive = streakData?.last_active_date ?? "1970-01-01";
+            let currentStreak = streakData?.current_streak ?? 0;
+
+            // If user has 30+ approvals today but streak not credited yet, trigger sync
+            const todayRepliesEarly = subs.filter(
+              (s: { status: string; submittedAt: string }) =>
+                s.status === "approved" && s.submittedAt?.startsWith(today2),
+            ).length;
+            const todayContentEarly = approvedContent.filter(
+              (s: { submittedAt: string }) => s.submittedAt?.startsWith(today2),
+            ).length;
+            if (todayRepliesEarly + todayContentEarly >= 30 && lastActive !== today2 && handle) {
+              try {
+                const syncRes = await fetch("/api/streak", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ x_username: handle.toLowerCase() }),
+                });
+                if (syncRes.ok) {
+                  const { data: synced } = await syncRes.json();
+                  lastActive    = synced?.last_active_date ?? lastActive;
+                  currentStreak = synced?.current_streak   ?? currentStreak;
+                }
+              } catch {}
+            }
+
             const streakActive = lastActive === today2 || lastActive === yesterday2;
-            setStreakDay(streakActive ? (streakData?.current_streak ?? 0) : 0);
+            setStreakDay(streakActive ? currentStreak : 0);
             // Count approved submissions for today from already-fetched data
             const today = new Date().toISOString().slice(0, 10);
             const todayReplies = subs.filter(
