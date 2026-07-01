@@ -1101,6 +1101,7 @@ function FarmPointsContent() {
       }
       setContentTitle("");
       setContentLink("");
+      setPendingCount(p => p + 1);
       setContentSubmitted(true);
       setTimeout(() => setContentSubmitted(false), 2500);
     } catch {

@@ -51,7 +51,7 @@ const DEFAULT_REWARDS: RewardConfig[] = [
 const F: React.CSSProperties = { fontFamily: "system-ui, -apple-system, sans-serif" };
 
 function parseTweetHandle(url: string): string | null {
-  const m = url.match(/(?:twitter\.com|x\.com)\/([^/]+)\/status\//i);
+  const m = url.match(/(?:twitter\.com|x\.com)\/(?!i\/)([^/]+)\/status\//i);
   return m ? m[1].toLowerCase() : null;
 }
 
@@ -595,20 +595,20 @@ export default function AdminPage() {
                   ? <EmptyState message={filterStatus === "all" ? "No submissions yet." : `No ${filterStatus} submissions.`} />
                   : visibleSubs.map((s, i) => {
                     const urlHandle = parseTweetHandle(s.link);
-                    const isMatch   = urlHandle === s.xHandle.toLowerCase();
+                    const isMatch   = urlHandle !== null && urlHandle === s.xHandle.toLowerCase();
                     return (
                       <div key={s.id} style={{
                         display: "grid", gridTemplateColumns: "140px 130px 110px 1fr 100px 170px",
                         gap: 12, padding: "13px 18px",
                         borderBottom: i < visibleSubs.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                         alignItems: "center",
-                        background: !isMatch && s.status === "pending" ? "rgba(255,68,68,0.04)" : "transparent",
+                        background: urlHandle !== null && !isMatch && s.status === "pending" ? "rgba(255,68,68,0.04)" : "transparent",
                       }}>
                         <div style={{ fontWeight: 700, fontSize: 13 }}>{s.user}</div>
                         <div style={{ fontSize: 12, color: "#3d7eff", fontWeight: 600 }}>@{s.xHandle}</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>@{urlHandle ?? "—"}</span>
-                          <MatchBadge match={isMatch} />
+                          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>{urlHandle ? `@${urlHandle}` : "—"}</span>
+                          {urlHandle !== null && <MatchBadge match={isMatch} />}
                         </div>
                         <a href={s.link} target="_blank" rel="noopener noreferrer"
                           style={{ color: "#3d7eff", fontSize: 11, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
@@ -678,14 +678,21 @@ export default function AdminPage() {
                   const visible = contentSubs.filter(s => contentFilter === "all" || s.status === contentFilter);
                   return visible.length === 0
                     ? <EmptyState message={contentFilter === "all" ? "No content submissions yet." : `No ${contentFilter} content.`} />
-                    : visible.map((s, i) => (
+                    : visible.map((s, i) => {
+                      const urlHandle = parseTweetHandle(s.contentUrl);
+                      const isMatch   = urlHandle !== null && urlHandle === s.xHandle.toLowerCase();
+                      return (
                       <div key={s.id} style={{
                         display: "grid", gridTemplateColumns: "160px 1fr 180px 100px 170px",
                         gap: 12, padding: "13px 18px",
                         borderBottom: i < visible.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                         alignItems: "center",
+                        background: urlHandle !== null && !isMatch && s.status === "pending" ? "rgba(255,68,68,0.04)" : "transparent",
                       }}>
-                        <div style={{ fontSize: 12, color: "#3d7eff", fontWeight: 600 }}>@{s.xHandle}</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                          <div style={{ fontSize: 12, color: "#3d7eff", fontWeight: 600 }}>@{s.xHandle}</div>
+                          {urlHandle !== null && <MatchBadge match={isMatch} />}
+                        </div>
                         <div style={{ fontWeight: 600, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</div>
                         <a href={s.contentUrl} target="_blank" rel="noopener noreferrer"
                           style={{ color: "#3d7eff", fontSize: 11, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
@@ -707,7 +714,8 @@ export default function AdminPage() {
                           </div>
                         ) : <StatusBadge status={s.status} />}
                       </div>
-                    ));
+                      );
+                    });
                 })()}
               </div>
             </div>
