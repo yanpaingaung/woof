@@ -57,8 +57,8 @@ export async function GET() {
     .map(([username]) => ({
       wallet: null,
       x_username: username,
-      current_streak: 1,
-      last_active_date: today,
+      current_streak: 0,
+      last_active_date: "1970-01-01",
       total_7day_rewards: 0,
     }));
 
