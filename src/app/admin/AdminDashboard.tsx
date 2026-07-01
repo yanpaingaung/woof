@@ -5,7 +5,7 @@ import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 /* ─── Types ─── */
 type SubStatus = "pending" | "approved" | "declined";
-type NavKey = "queue" | "leaderboard" | "analytics" | "adjustments" | "settings" | "content-queue";
+type NavKey = "queue" | "leaderboard" | "analytics" | "adjustments" | "settings" | "content-queue" | "daily-streaks";
 
 interface Submission {
   id: string;          // UUID from Supabase
@@ -40,6 +40,27 @@ interface ContentSubmission {
 }
 
 interface RewardConfig { key: string; label: string; pts: number; description: string; }
+
+interface StreakRecord {
+  id: string;
+  wallet: string;
+  x_username: string;
+  current_streak: number;
+  last_active_date: string;
+  total_7day_rewards: number;
+  last_reward_date: string | null;
+  updated_at: string;
+  today_approved: number;
+}
+
+interface StreakReward {
+  id: string;
+  wallet: string;
+  x_username: string;
+  points: number;
+  reward_type: string;
+  created_at: string;
+}
 
 /* ─── Constants ─── */
 const DEFAULT_REWARDS: RewardConfig[] = [
@@ -142,21 +163,29 @@ export default function AdminPage() {
   const [contentSubs, setContentSubs]           = useState<ContentSubmission[]>([]);
   const [contentFilter, setContentFilter]       = useState<SubStatus | "all">("all");
   const [filterStatus, setFilterStatus] = useState<SubStatus | "all">("all");
+  const [streakRecords, setStreakRecords]       = useState<StreakRecord[]>([]);
+  const [streakRewards, setStreakRewards]       = useState<StreakReward[]>([]);
 
-  /* Export state */
+  /* Export state — leaderboard */
   const [showExport, setShowExport]   = useState(false);
   const [exportTab, setExportTab]     = useState<"csv" | "clipboard" | "script">("csv");
   const [sheetsUrl, setSheetsUrl]     = useState("");
   const [syncStatus, setSyncStatus]   = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [copied, setCopied]           = useState(false);
 
+  /* Export state — daily streaks */
+  const [showStreakExport, setShowStreakExport] = useState(false);
+  const [streakExportTab, setStreakExportTab]   = useState<"csv" | "clipboard">("csv");
+  const [streakCopied, setStreakCopied]         = useState(false);
+
   /* Load all data from APIs */
   const loadFromStorage = useCallback(async () => {
-    const [subsRes, rewardsRes, contentRes, adjRes] = await Promise.allSettled([
+    const [subsRes, rewardsRes, contentRes, adjRes, streakRes] = await Promise.allSettled([
       fetch("/api/admin/submissions"),
       fetch("/api/rewards"),
       fetch("/api/content-submissions"),
       fetch("/api/adjustments"),
+      fetch("/api/admin/streaks"),
     ]);
 
     if (subsRes.status === "fulfilled" && subsRes.value.ok) {
@@ -178,11 +207,29 @@ export default function AdminPage() {
       const { data } = await adjRes.value.json();
       if (Array.isArray(data)) setAdjustments(data);
     }
+    if (streakRes.status === "fulfilled" && streakRes.value.ok) {
+      const { streaks, rewards } = await streakRes.value.json();
+      if (Array.isArray(streaks)) setStreakRecords(streaks);
+      if (Array.isArray(rewards)) setStreakRewards(rewards);
+    }
   }, []);
 
   useEffect(() => {
     loadFromStorage();
   }, [loadFromStorage]);
+
+  /* Re-fetch streak data whenever the admin navigates to the Daily Streaks tab */
+  useEffect(() => {
+    if (nav !== "daily-streaks") return;
+    fetch("/api/admin/streaks")
+      .then(r => r.ok ? r.json() : null)
+      .then(json => {
+        if (!json) return;
+        if (Array.isArray(json.streaks)) setStreakRecords(json.streaks);
+        if (Array.isArray(json.rewards)) setStreakRewards(json.rewards);
+      })
+      .catch(() => {});
+  }, [nav]);
 
   /* Supabase Realtime — stream new submissions without a page refresh */
   const realtimeRef = useRef<{ unsubscribe: () => void } | null>(null);
@@ -424,6 +471,70 @@ export default function AdminPage() {
     }
   };
 
+  /* ─── Streak export helpers ─── */
+  const streakExportRows = () => {
+    const exportedAt = new Date().toISOString();
+    return streakRecords.map(r => ({
+      x_username:        r.x_username,
+      wallet:            r.wallet ?? "—",
+      current_streak:    r.current_streak,
+      today_approved:    r.today_approved ?? 0,
+      last_active_date:  r.last_active_date,
+      total_7day_rewards: r.total_7day_rewards,
+      last_reward_date:  r.last_reward_date ?? "—",
+      exported_at:       exportedAt,
+    }));
+  };
+
+  const downloadStreakCSV = () => {
+    const rows = streakExportRows();
+    const header = ["X Username", "Wallet", "Current Streak", "Today Approved", "Last Active Date", "Total 7-Day Rewards", "Last Reward Date", "Exported At"];
+    const lines = [
+      header.join(","),
+      ...rows.map(r =>
+        [
+          `@${r.x_username}`,
+          r.wallet,
+          r.current_streak,
+          r.today_approved,
+          r.last_active_date,
+          r.total_7day_rewards,
+          r.last_reward_date,
+          r.exported_at,
+        ].join(",")
+      ),
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `woof-daily-streaks-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copyStreakTSV = async () => {
+    const rows = streakExportRows();
+    const lines = [
+      ["X Username", "Wallet", "Current Streak", "Today Approved", "Last Active Date", "Total 7-Day Rewards", "Last Reward Date", "Exported At"].join("\t"),
+      ...rows.map(r =>
+        [
+          `@${r.x_username}`,
+          r.wallet,
+          r.current_streak,
+          r.today_approved,
+          r.last_active_date,
+          r.total_7day_rewards,
+          r.last_reward_date,
+          r.exported_at,
+        ].join("\t")
+      ),
+    ];
+    await navigator.clipboard.writeText(lines.join("\n"));
+    setStreakCopied(true);
+    setTimeout(() => setStreakCopied(false), 2500);
+  };
+
   const handleAdjust = async () => {
     if (!adjUser.trim() || !adjPts.trim()) return;
     const res = await fetch("/api/adjustments", {
@@ -441,21 +552,23 @@ export default function AdminPage() {
   };
 
   const NAV: { key: NavKey; icon: string; label: string; badge?: number }[] = [
-    { key: "queue",         icon: "📋", label: "Submission Queue", badge: pending },
-    { key: "content-queue", icon: "📝", label: "Content Queue",    badge: contentPending },
-    { key: "leaderboard",   icon: "🏆", label: "Point Leaderboard" },
-    { key: "analytics",     icon: "📊", label: "Analytics" },
-    { key: "adjustments",   icon: "⚡", label: "Point Adjustments" },
-    { key: "settings",      icon: "⚙️", label: "Reward Settings" },
+    { key: "queue",          icon: "📋", label: "Submission Queue",  badge: pending },
+    { key: "content-queue",  icon: "📝", label: "Content Queue",     badge: contentPending },
+    { key: "leaderboard",    icon: "🏆", label: "Point Leaderboard" },
+    { key: "analytics",      icon: "📊", label: "Analytics" },
+    { key: "adjustments",    icon: "⚡", label: "Point Adjustments" },
+    { key: "daily-streaks",  icon: "🔥", label: "Daily Streaks" },
+    { key: "settings",       icon: "⚙️", label: "Reward Settings" },
   ];
 
   const PAGE_TITLES: Record<NavKey, string> = {
-    queue:           "Submission Queue",
-    "content-queue": "Content Queue",
-    leaderboard:     "Point Leaderboard",
-    analytics:       "Analytics",
-    adjustments:     "Point Adjustments",
-    settings:        "Reward Settings",
+    queue:            "Submission Queue",
+    "content-queue":  "Content Queue",
+    leaderboard:      "Point Leaderboard",
+    analytics:        "Analytics",
+    adjustments:      "Point Adjustments",
+    "daily-streaks":  "Daily Streaks",
+    settings:         "Reward Settings",
   };
 
   return (
@@ -1085,6 +1198,241 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          {/* ── Daily Streaks ── */}
+          {nav === "daily-streaks" && (() => {
+            const today = new Date().toISOString().slice(0, 10);
+            const totalRewardsIssued = streakRewards.length;
+            const totalPointsFromStreaks = streakRewards.reduce((s, r) => s + r.points, 0);
+            const usersWithStreaks = streakRecords.length;
+            const usersAtMax = streakRecords.filter(r => r.current_streak >= 6).length;
+
+            return (
+              <div>
+                {/* Stats + Export button */}
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 24 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, flex: 1 }}>
+                    <StatCard label="Users Tracked"       value={usersWithStreaks.toString()} trend="with active streaks"     color="#fff"     />
+                    <StatCard label="Close to Reward"     value={usersAtMax.toString()}       trend="day 6 or 7"              color="#febc2e"  />
+                    <StatCard label="Rewards Issued"      value={totalRewardsIssued.toString()} trend="7-day completions"     color="#00c864"  />
+                    <StatCard label="Points From Streaks" value={totalPointsFromStreaks.toLocaleString()} trend="auto-awarded" color="#0052FF" />
+                  </div>
+                  <button
+                    onClick={() => setShowStreakExport(v => !v)}
+                    style={{
+                      background: showStreakExport ? "rgba(52,211,153,0.15)" : "rgba(255,255,255,0.05)",
+                      border: `1px solid ${showStreakExport ? "rgba(52,211,153,0.4)" : "rgba(255,255,255,0.12)"}`,
+                      borderRadius: 10, color: showStreakExport ? "#34d399" : "rgba(255,255,255,0.7)",
+                      padding: "9px 18px", cursor: "pointer", fontSize: 12, fontWeight: 700,
+                      fontFamily: "system-ui,sans-serif", display: "flex", alignItems: "center", gap: 6,
+                      whiteSpace: "nowrap", flexShrink: 0,
+                    }}
+                  >
+                    <span style={{ fontSize: 14 }}>↗</span> Export to Sheets
+                  </button>
+                </div>
+
+                {/* Export panel */}
+                {showStreakExport && (
+                  <div style={{
+                    background: "rgba(52,211,153,0.04)", border: "1px solid rgba(52,211,153,0.15)",
+                    borderRadius: 14, padding: "20px 24px", marginBottom: 24,
+                  }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: "#34d399", marginBottom: 4 }}>
+                      ↗ Export Daily Streaks to Google Sheets
+                    </div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 16 }}>
+                      Exports: X Username, Wallet, Current Streak, Today Approved, Last Active Date, Total 7-Day Rewards, Last Reward Date
+                    </div>
+                    {/* Tabs */}
+                    <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.07)", marginBottom: 20 }}>
+                      {([ { key: "csv", label: "⬇ CSV Download" }, { key: "clipboard", label: "📋 Copy to Clipboard" } ] as const).map(t => (
+                        <button key={t.key} onClick={() => setStreakExportTab(t.key)} style={{
+                          background: "none", border: "none",
+                          borderBottom: streakExportTab === t.key ? "2px solid #34d399" : "2px solid transparent",
+                          color: streakExportTab === t.key ? "#34d399" : "rgba(255,255,255,0.4)",
+                          padding: "8px 16px", cursor: "pointer", fontSize: 12, fontWeight: 600,
+                          fontFamily: "system-ui,sans-serif", marginBottom: -1,
+                        }}>{t.label}</button>
+                      ))}
+                    </div>
+                    {streakExportTab === "csv" && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <button
+                          onClick={downloadStreakCSV}
+                          disabled={streakRecords.length === 0}
+                          style={{
+                            background: streakRecords.length === 0 ? "rgba(255,255,255,0.05)" : "rgba(52,211,153,0.15)",
+                            border: `1px solid ${streakRecords.length === 0 ? "rgba(255,255,255,0.1)" : "rgba(52,211,153,0.4)"}`,
+                            borderRadius: 10, color: streakRecords.length === 0 ? "rgba(255,255,255,0.3)" : "#34d399",
+                            padding: "10px 22px", cursor: streakRecords.length === 0 ? "not-allowed" : "pointer",
+                            fontSize: 13, fontWeight: 700, fontFamily: "system-ui,sans-serif",
+                          }}
+                        >
+                          ⬇ Download {streakRecords.length} rows as CSV
+                        </button>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
+                          Opens in Excel or import via Google Sheets → File → Import
+                        </div>
+                      </div>
+                    )}
+                    {streakExportTab === "clipboard" && (
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Copy & paste directly into Google Sheets</div>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 14 }}>
+                          Tab-separated — paste into cell A1 and data fills columns automatically.
+                        </div>
+                        <button
+                          onClick={copyStreakTSV}
+                          disabled={streakRecords.length === 0}
+                          style={{
+                            background: streakCopied ? "rgba(52,211,153,0.15)" : streakRecords.length === 0 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.08)",
+                            border: `1px solid ${streakCopied ? "rgba(52,211,153,0.4)" : "rgba(255,255,255,0.15)"}`,
+                            borderRadius: 10, color: streakCopied ? "#34d399" : streakRecords.length === 0 ? "rgba(255,255,255,0.3)" : "#fff",
+                            padding: "10px 22px", cursor: streakRecords.length === 0 ? "not-allowed" : "pointer",
+                            fontSize: 13, fontWeight: 700, fontFamily: "system-ui,sans-serif", transition: "all 0.2s",
+                          }}
+                        >
+                          {streakCopied ? "✓ Copied! Paste into Google Sheets" : `📋 Copy ${streakRecords.length} rows to clipboard`}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Current Streaks table */}
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Current Streaks</div>
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden", marginBottom: 28 }}>
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "1fr 120px 80px 100px 110px 120px 80px 110px",
+                    gap: 10, padding: "10px 16px",
+                    borderBottom: "1px solid rgba(255,255,255,0.07)",
+                    fontSize: 10, color: "rgba(255,255,255,0.3)",
+                    textTransform: "uppercase", letterSpacing: "1px",
+                  }}>
+                    <span>Wallet</span>
+                    <span>X Username</span>
+                    <span style={{ textAlign: "center" }}>Streak</span>
+                    <span style={{ textAlign: "center" }}>Today</span>
+                    <span>Last Active</span>
+                    <span>Next Reward</span>
+                    <span style={{ textAlign: "center" }}>Total Won</span>
+                    <span>Last Reward</span>
+                  </div>
+
+                  {streakRecords.length === 0
+                    ? <EmptyState message="No streak data yet — users will appear here after their first submission." />
+                    : streakRecords.map((r, i) => {
+                      const daysLeft = 7 - r.current_streak;
+                      const isToday = r.last_active_date === today;
+                      const todayApproved = r.today_approved ?? 0;
+                      return (
+                        <div key={r.id} style={{
+                          display: "grid", gridTemplateColumns: "1fr 120px 80px 100px 110px 120px 80px 110px",
+                          gap: 10, padding: "12px 16px",
+                          borderBottom: i < streakRecords.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                          alignItems: "center",
+                        }}>
+                          <div style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {r.wallet}
+                          </div>
+                          <div style={{ fontSize: 12, color: "#3d7eff", fontWeight: 600 }}>@{r.x_username}</div>
+                          <div style={{ textAlign: "center" }}>
+                            <span style={{
+                              display: "inline-flex", alignItems: "center", gap: 4,
+                              background: r.current_streak >= 6 ? "rgba(254,188,46,0.15)" : "rgba(0,82,255,0.1)",
+                              border: `1px solid ${r.current_streak >= 6 ? "rgba(254,188,46,0.4)" : "rgba(0,82,255,0.25)"}`,
+                              borderRadius: 20, padding: "3px 10px",
+                              fontSize: 12, fontWeight: 800,
+                              color: r.current_streak >= 6 ? "#febc2e" : "#3d7eff",
+                            }}>
+                              🔥 {r.current_streak}
+                            </span>
+                          </div>
+                          <div style={{ textAlign: "center", fontSize: 12, fontWeight: 700, color: todayApproved >= 30 ? "#00c864" : "rgba(255,255,255,0.5)" }}>
+                            {todayApproved >= 30 ? (
+                              <span style={{ color: "#00c864" }}>✓ {todayApproved}</span>
+                            ) : (
+                              <span>{todayApproved}<span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontWeight: 400 }}>/30</span></span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 11, color: isToday ? "#00c864" : "rgba(255,255,255,0.4)" }}>
+                            {isToday ? "✓ Today" : r.last_active_date}
+                          </div>
+                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                            {daysLeft === 0 ? (
+                              <span style={{ color: "#febc2e", fontWeight: 700 }}>🎉 Reward earned!</span>
+                            ) : (
+                              `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`
+                            )}
+                          </div>
+                          <div style={{ textAlign: "center", fontWeight: 700, color: r.total_7day_rewards > 0 ? "#00c864" : "rgba(255,255,255,0.25)", fontSize: 13 }}>
+                            {r.total_7day_rewards > 0 ? `×${r.total_7day_rewards}` : "—"}
+                          </div>
+                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
+                            {r.last_reward_date ?? "—"}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+
+                {/* Reward History table */}
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Reward History</div>
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "130px 1fr 100px 180px 160px 1fr",
+                    gap: 10, padding: "10px 16px",
+                    borderBottom: "1px solid rgba(255,255,255,0.07)",
+                    fontSize: 10, color: "rgba(255,255,255,0.3)",
+                    textTransform: "uppercase", letterSpacing: "1px",
+                  }}>
+                    <span>Username</span>
+                    <span>Wallet</span>
+                    <span style={{ textAlign: "right" }}>Amount</span>
+                    <span>Reward Type</span>
+                    <span>Date & Time</span>
+                    <span>Record ID</span>
+                  </div>
+
+                  {streakRewards.length === 0
+                    ? <EmptyState message="No streak rewards issued yet." />
+                    : streakRewards.map((r, i) => (
+                      <div key={r.id} style={{
+                        display: "grid", gridTemplateColumns: "130px 1fr 100px 180px 160px 1fr",
+                        gap: 10, padding: "12px 16px",
+                        borderBottom: i < streakRewards.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                        alignItems: "center",
+                      }}>
+                        <div style={{ fontSize: 12, color: "#3d7eff", fontWeight: 600 }}>@{r.x_username}</div>
+                        <div style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {r.wallet}
+                        </div>
+                        <div style={{ textAlign: "right", fontWeight: 800, color: "#00c864", fontSize: 13 }}>
+                          +{r.points.toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: 11 }}>
+                          <span style={{
+                            background: "rgba(254,188,46,0.1)", border: "1px solid rgba(254,188,46,0.3)",
+                            borderRadius: 20, padding: "2px 8px", color: "#febc2e", fontWeight: 700,
+                          }}>
+                            🔥 {r.reward_type}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                          {new Date(r.created_at).toLocaleString()}
+                        </div>
+                        <div style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(255,255,255,0.25)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {r.id}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── Reward Settings ── */}
           {nav === "settings" && (

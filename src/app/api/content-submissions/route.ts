@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { registerWallet } from "@/lib/streak";
 
 function extractTweetId(url: string): string | null {
   const m = url.match(/\/status\/(\d+)/i);
@@ -79,6 +80,12 @@ export async function POST(req: NextRequest) {
         );
       }
       return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    // Register wallet ↔ username mapping so the approval route can look up the wallet later
+    const wallet = typeof body.wallet === "string" ? body.wallet.trim().toLowerCase() : "";
+    if (wallet.startsWith("0x")) {
+      try { await registerWallet(wallet, x_handle); } catch {}
     }
 
     return Response.json({ data: mapRow(data) }, { status: 201 });

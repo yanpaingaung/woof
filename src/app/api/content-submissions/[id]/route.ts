@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { checkAndAwardStreak } from "@/lib/streak";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,6 +18,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .select()
       .single();
     if (error) return Response.json({ error: error.message }, { status: 500 });
+
+    // On approval, check if the 30-submission threshold is crossed and advance streak
+    if (status === "approved" && data?.x_handle) {
+      try { await checkAndAwardStreak(data.x_handle); } catch {}
+    }
+
     return Response.json({ data });
   } catch {
     return Response.json({ error: "Server error." }, { status: 500 });

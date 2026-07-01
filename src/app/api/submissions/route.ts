@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { registerWallet } from "@/lib/streak";
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -98,6 +99,12 @@ export async function POST(req: NextRequest) {
       }
       console.error("submissions insert error:", error);
       return Response.json({ error: "Database error." }, { status: 500 });
+    }
+
+    // Register wallet ↔ username mapping so the approval route can look up the wallet later
+    const wallet = typeof body.wallet === "string" ? body.wallet.trim().toLowerCase() : "";
+    if (wallet.startsWith("0x")) {
+      try { await registerWallet(wallet, x_username); } catch {}
     }
 
     return Response.json({ data: mapRow(data) }, { status: 201 });

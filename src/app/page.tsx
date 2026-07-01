@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 import { translate, type DetectedLanguage } from "@/lib/woof";
 import { cn } from "@/lib/utils";
 
@@ -197,8 +198,8 @@ function ModernDraggableWindow({
         style={{ cursor: isFullscreen ? "default" : "move", userSelect: "none" }}
         onMouseDown={onTitleMouseDown}
       >
-        <span style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "10px" }}>
-          🌾 {title}
+        <span style={{ fontFamily: "var(--font-pixel-heading)", fontSize: "10px", display: "flex", alignItems: "center", gap: 4 }}>
+          <img src="/pointbone.png" alt="" style={{ width: 14, height: 14, objectFit: "contain" }} /> {title}
         </span>
         <div className="flex gap-1">
           <div className="w98-titlebar-btn" onClick={() => onMinimize(id)}>_</div>
@@ -501,7 +502,7 @@ function WalletConnectButton() {
 }
 
 /* ══════════════════════════════════════════════
-   Farm Points Content
+   Farm WOOF Content
 ══════════════════════════════════════════════ */
 const STREAK_DAYS = [1, 2, 3, 4, 5, 6, 7];
 
@@ -682,7 +683,7 @@ function FarmPointsGated() {
           Connect Your Base Wallet
         </div>
         <div style={{ fontSize: 13, color: "#475569", marginBottom: 24, lineHeight: 1.6 }}>
-          A Base wallet is required to access Farm Points and track your WOOF rewards.
+          A Base wallet is required to access Farm WOOF and track your WOOF rewards.
         </div>
         <WalletConnectButton />
       </div>
@@ -912,6 +913,7 @@ function ConnectedAccountsBar({
 }
 
 function FarmPointsContent() {
+  const { address } = useAccount();
   const [showHowToEarn, setShowHowToEarn] = useState(false);
   const [twitterUser, setTwitterUser] = useState<string | null>(null);
   const [twitterInput, setTwitterInput] = useState("");
@@ -1010,36 +1012,67 @@ function FarmPointsContent() {
       setApprovedPoints(Math.max(0, replyPts + contentPts + adjustPts));
       setPendingCount(replyPend + contentPend);
 
-      // Streak: count approved per calendar day (reply submissions + content submissions)
-      const approvedByDate: Record<string, number> = {};
-      subs
-        .filter((s: { status: string }) => s.status === "approved")
-        .forEach((s: { submittedAt: string }) => {
-          const d = s.submittedAt.slice(0, 10);
-          approvedByDate[d] = (approvedByDate[d] ?? 0) + 1;
-        });
-      approvedContent.forEach(s => {
-        const d = s.submittedAt.slice(0, 10);
-        approvedByDate[d] = (approvedByDate[d] ?? 0) + 1;
-      });
-
-      // Consecutive days ending today where approved ≥ 30
-      let streakDays = 0;
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
-        if ((approvedByDate[d] ?? 0) >= 30) streakDays++;
-        else break;
+      // Fetch streak from API
+      if (address) {
+        try {
+          const streakRes = await fetch(`/api/streak?wallet=${encodeURIComponent(address)}`);
+          if (streakRes.ok) {
+            const { data: streakData } = await streakRes.json();
+            setStreakDay(streakData?.current_streak ?? 0);
+            // Count approved submissions for today from already-fetched data
+            const today = new Date().toISOString().slice(0, 10);
+            const todayReplies = subs.filter(
+              (s: { status: string; submittedAt: string }) =>
+                s.status === "approved" && s.submittedAt?.startsWith(today),
+            ).length;
+            const todayContent = approvedContent.filter(
+              (s: { submittedAt: string }) => s.submittedAt?.startsWith(today),
+            ).length;
+            setTodayCount(todayReplies + todayContent);
+          }
+        } catch {}
+      } else {
+        setStreakDay(0);
+        setTodayCount(0);
       }
-      setStreakDay(streakDays);
-
-      const today = new Date().toISOString().slice(0, 10);
-      setTodayCount(approvedByDate[today] ?? 0);
     } catch { /* network errors are silent */ }
-  }, []);
+  }, [address]);
 
   useEffect(() => {
     loadData(twitterUser);
   }, [twitterUser, loadData]);
+
+  // Realtime: update streak display instantly when admin approval advances the streak
+  useEffect(() => {
+    if (!address) return;
+    const supabase = getSupabaseBrowser();
+    if (!supabase) return;
+
+    const walletLower = address.toLowerCase();
+    const channel = supabase
+      .channel(`streak-${walletLower}-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "daily_streaks",
+          filter: `wallet=eq.${walletLower}`,
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (payload: { new: any }) => {
+          const row = payload.new;
+          if (!row) return;
+          setStreakDay(row.current_streak ?? 0);
+          const today = new Date().toISOString().slice(0, 10);
+          // When streak day earned → show threshold met; when streak resets → clear progress
+          setTodayCount(row.last_active_date === today ? 30 : 0);
+        },
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [address]);
 
   const handleConnect = () => {
     const handle = twitterInput.trim().replace(/^@/, "");
@@ -1060,7 +1093,7 @@ function FarmPointsContent() {
       const res = await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ x_username: twitterUser.toLowerCase(), tweet_url: link, points: rewardPts.submitReply }),
+        body: JSON.stringify({ x_username: twitterUser.toLowerCase(), tweet_url: link, points: rewardPts.submitReply, wallet: address }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -1070,6 +1103,7 @@ function FarmPointsContent() {
       setTwitterLink("");
       setPendingCount(p => p + 1);
       setSubmitted(true);
+      loadData(twitterUser);
       setTimeout(() => setSubmitted(false), 2500);
     } catch {
       setSubmitError("Network error. Please try again.");
@@ -1092,7 +1126,7 @@ function FarmPointsContent() {
       const res = await fetch("/api/content-submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ x_handle: twitterUser.toLowerCase(), title, content_url: link, points: rewardPts.submitContent }),
+        body: JSON.stringify({ x_handle: twitterUser.toLowerCase(), title, content_url: link, points: rewardPts.submitContent, wallet: address }),
       });
       if (!res.ok) {
         const { error } = await res.json();
@@ -1103,6 +1137,7 @@ function FarmPointsContent() {
       setContentLink("");
       setPendingCount(p => p + 1);
       setContentSubmitted(true);
+      loadData(twitterUser);
       setTimeout(() => setContentSubmitted(false), 2500);
     } catch {
       setContentError("Failed to save. Please try again.");
@@ -1285,30 +1320,19 @@ function FarmPointsContent() {
             })}
           </div>
 
-          {/* Today's approved progress toward 30 */}
+          {/* Today's streak status */}
           {twitterUser ? (
             todayCount >= 30 ? (
               <div className="streak-status-text" style={{ fontSize: 11, color: "#059669", fontWeight: 700, textAlign: "center" }}>
-                🎉 Day {streakDay} earned! Back tomorrow.
+                ✅ Today&apos;s Daily Streak Earned
               </div>
             ) : (
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ fontSize: 10, color: "#475569" }}>Today</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: todayCount >= 25 ? "#D97706" : "#0F172A" }}>
-                    {todayCount} / 30
-                  </span>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#0052FF", fontWeight: 700, marginBottom: 3 }}>
+                  Today&apos;s Progress: {todayCount} / 30 Approved
                 </div>
-                <div style={{ height: 4, background: "rgba(31,41,55,0.1)", borderRadius: 4, overflow: "hidden" }}>
-                  <div style={{
-                    height: "100%", borderRadius: 4,
-                    width: `${Math.min((todayCount / 30) * 100, 100)}%`,
-                    background: todayCount >= 25 ? "#F59E0B" : "#0052FF",
-                    transition: "width 0.3s",
-                  }} />
-                </div>
-                <div className="streak-hint-text" style={{ fontSize: 10, color: "#64748B", marginTop: 5, textAlign: "center" }}>
-                  {30 - todayCount} more needed · pending don&apos;t count
+                <div className="streak-hint-text" style={{ fontSize: 10, color: "#64748B" }}>
+                  Complete 30 approved submissions today to earn 1 streak day
                 </div>
               </div>
             )
@@ -1346,7 +1370,7 @@ function FarmPointsContent() {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-            {topContributors.map((c, i) => (
+            {topContributors.slice(0, 10).map((c, i) => (
               <div key={c.name} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ fontSize: 11, color: "#475569", width: 18, textAlign: "right", fontWeight: 700 }}>#{i + 1}</span>
                 <span style={{ fontSize: 20, lineHeight: 1, color: "#0F172A" }}>𝕏</span>
@@ -1495,7 +1519,7 @@ const WIN_META: Record<WinId, { icon: string; title: string; label: React.ReactN
   woofing:      { icon: "🐾", title: "WOOFing",                             label: "🐾 WOOFing"      },
   community:    { icon: "🌐", title: "Community.exe — WOOF Social Hub",    label: "🌐 Community"    },
   about:        { icon: "ℹ️",  title: "About WOOF.EXE",                     label: "ℹ️ About"        },
-  "farm-points":{ icon: "🦴", title: "Farm Points.exe",                    label: <><img src="/pointbone.png" alt="" style={{ width: 28, height: 28, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 5 }} />Farm Points</> },
+  "farm-points":{ icon: "🦴", title: "Farm WOOF.exe",                      label: <><img src="/pointbone.png" alt="" style={{ width: 28, height: 28, objectFit: "contain", display: "inline-block", verticalAlign: "middle", marginRight: 5 }} />Farm WOOF</> },
 };
 
 const INITIAL_WINS: WinState[] = [
@@ -1644,7 +1668,7 @@ export default function Home() {
           <DesktopIcon icon="🐾" label="WOOFing.exe"    onDoubleClick={() => open("woofing")} />
           <DesktopIcon icon="🌐" label="Community"       onDoubleClick={() => open("community")} />
           <DesktopIcon icon="ℹ️" label="About.txt"       onDoubleClick={() => open("about")} />
-          <DesktopIcon icon={<img src="/pointbone.png" alt="" style={{ width: 48, height: 48, objectFit: "contain" }} />} label="Farm Points" onDoubleClick={() => open("farm-points")} />
+          <DesktopIcon icon={<img src="/pointbone.png" alt="" style={{ width: 48, height: 48, objectFit: "contain" }} />} label="Farm WOOF" onDoubleClick={() => open("farm-points")} />
           <DesktopIcon icon={<img src="/tokenicon.png" alt="" style={{ width: 48, height: 48, objectFit: "contain" }} />} label="$WOOF Token" onDoubleClick={() => {}} />
           <DesktopIcon icon="🗑️" label="Recycle Bin"    onDoubleClick={() => {}} />
         </div>

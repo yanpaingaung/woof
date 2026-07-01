@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { checkAndAwardStreak } from "@/lib/streak";
 
 /* PATCH /api/admin/submissions/[id] — approve or decline a submission */
 export async function PATCH(
@@ -26,6 +27,11 @@ export async function PATCH(
     if (error) {
       console.error("admin submission update error:", error);
       return Response.json({ error: "Database error." }, { status: 500 });
+    }
+
+    // On approval, check if the 30-submission threshold is crossed and advance streak
+    if (status === "approved" && data?.x_username) {
+      try { await checkAndAwardStreak(data.x_username); } catch {}
     }
 
     return Response.json({ data });
