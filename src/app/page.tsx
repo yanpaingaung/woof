@@ -926,6 +926,7 @@ function FarmPointsContent() {
   const [contentTitle, setContentTitle]     = useState("");
   const [contentLink, setContentLink]       = useState("");
   const [contentSubmitted, setContentSubmitted] = useState(false);
+  const [contentSubmitting, setContentSubmitting] = useState(false);
   const [contentError, setContentError]     = useState("");
 
   // Real data from Supabase via API
@@ -1160,6 +1161,7 @@ function FarmPointsContent() {
       return;
     }
     setContentError("");
+    setContentSubmitting(true);
     try {
       const res = await fetch("/api/content-submissions", {
         method: "POST",
@@ -1179,6 +1181,8 @@ function FarmPointsContent() {
       setTimeout(() => setContentSubmitted(false), 2500);
     } catch {
       setContentError("Failed to save. Please try again.");
+    } finally {
+      setContentSubmitting(false);
     }
   };
 
@@ -1510,11 +1514,11 @@ function FarmPointsContent() {
             )}
             <button
               className="farm-btn-primary"
-              style={{ width: "100%", padding: "9px 0", opacity: (contentTitle.trim() && contentLink.trim()) ? 1 : 0.45 }}
+              style={{ width: "100%", padding: "9px 0", opacity: (contentTitle.trim() && contentLink.trim() && !contentSubmitting) ? 1 : 0.45 }}
               onClick={handleSubmitContent}
-              disabled={!contentTitle.trim() || !contentLink.trim()}
+              disabled={!contentTitle.trim() || !contentLink.trim() || contentSubmitting}
             >
-              {contentSubmitted ? "✓ Submitted!" : "Submit"}
+              {contentSubmitting ? "Submitting…" : contentSubmitted ? "✓ Submitted!" : "Submit"}
             </button>
           </>
         )}
